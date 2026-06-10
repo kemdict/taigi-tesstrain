@@ -22,9 +22,7 @@ GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 rm -rf "$GT_DIR" "$OUTPUT_DIR"
 
-exit 0
-
-# Generate the main thing first
+# Generate the main thing first for more complete unicharset etc.
 # We need more than just the trainedmodel files from tessdata.
 # /usr/share/tessdata works for this.
 uv run python src/tesstrain --linedata_only \
@@ -33,20 +31,27 @@ uv run python src/tesstrain --linedata_only \
     --tessdata_dir /usr/share/tessdata \
     --training_text "$TRAINING_DIR"/ftg.training_text.all.txt \
     --output_dir "$GT_DIR"
+# Prefer the segmented lstmf files
+find "$GT_DIR" -path "*.lstmf" -delete
+# Then generate the lstmf files for segments
 find "$TRAINING_TEXT_DIR" -type f -path "*.txt" | while read -r f; do
     if [ "$(basename "$f")" == ftg.training_text.all.txt ]; then
         continue
     fi
+    rm -rf data/tmp
+    mkdir -p data/tmp
     uv run python src/tesstrain --linedata_only \
         --lang ftg \
         --langdata_dir data/langdata \
         --tessdata_dir /usr/share/tessdata \
         --training_text "$f" \
-        --output_dir "$GT_DIR"
+        --output_dir data/tmp
+    find data/tmp -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
 done
+
 mv "$GT_DIR"/ftg "$OUTPUT_DIR"
 find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-cp "$TRAINING_TEXT_DIR"/ftg.training_text "$OUTPUT_DIR"/all-gt
+cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 
 make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
 make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
