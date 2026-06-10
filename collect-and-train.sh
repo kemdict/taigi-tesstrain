@@ -10,5 +10,6 @@ if [ ! -f "data/ftg/ftg.training_text" ]; then
     cat data/ftg/ftg.training_text.poj data/ftg/ftg.training_text.kip >data/ftg/ftg.training_text
 fi
 make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
+uv run python src/tesstrain --linedata_only --lang ftg --langdata_dir data --tessdata_dir data/tessdata --fontlist 'Liberation Serif' 'Noto Serif' 'Iosevka' 'Charis'
 make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
 make traineddata MODEL_NAME=ftg
