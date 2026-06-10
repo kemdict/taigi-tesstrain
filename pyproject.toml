@@ -1,0 +1,15 @@
+[project]
+name = "tesstrain"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "pandas>=3.0.3",
+    "pillow>=6.2.1",
+    "python-bidi>=0.4",
+]
+
+[tool.uv]
+package = true
