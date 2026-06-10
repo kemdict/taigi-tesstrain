@@ -10,7 +10,7 @@ if [ ! -f "$TRAINING_TEXT_DIR/ftg.training_text" ]; then
     cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.poj
     bunx @kemdict/kesi --to kip --input "$TRAINING_TEXT_DIR"/ftg.training_text.poj --output "$TRAINING_TEXT_DIR"/ftg.training_text.kip
     if [ -n "$TESTING" ]; then
-        cat "$TRAINING_TEXT_DIR"/ftg.training_text.poj "$TRAINING_TEXT_DIR"/ftg.training_text.kip | head -n=100 >"$TRAINING_TEXT_DIR"/ftg.training_text
+        cat "$TRAINING_TEXT_DIR"/ftg.training_text.poj "$TRAINING_TEXT_DIR"/ftg.training_text.kip | head -n 1000 >"$TRAINING_TEXT_DIR"/ftg.training_text
     else
         cat "$TRAINING_TEXT_DIR"/ftg.training_text.poj "$TRAINING_TEXT_DIR"/ftg.training_text.kip >"$TRAINING_TEXT_DIR"/ftg.training_text
     fi

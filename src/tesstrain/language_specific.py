@@ -155,6 +155,7 @@ TAIGI_FONTS = [
     'Noto Serif',
     'Charis',
     'Iosevka',
+    'Roboto Condensed, Condensed',
 ]
 
 VIETNAMESE_FONTS = [
