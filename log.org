@@ -108,7 +108,7 @@ See =extract.ts=
 
 #+begin_src shell :results none
 mkdir -p data/ftg
-node extract.ts > data/ftg/ftg.training_text
+node extract.ts > data/ftg/ftg.training_text.poj
 #+end_src
 
 Also throw all valid syllables into the file (relies on =kisaragi-rime-taigi=)
@@ -120,11 +120,11 @@ cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/
 Make sure we have both POJ and TL, then merge them back.
 
 #+begin_src shell
-# essentially a normalization
-bunx @kemdict/kesi --to poj --input data/ftg/ftg.training_text --output data/ftg/ftg.training_text.poj
-bunx @kemdict/kesi --to kip --input data/ftg/ftg.training_text --output data/ftg/ftg.training_text.kip
+bunx @kemdict/kesi --to kip --input data/ftg/ftg.training_text.poj --output data/ftg/ftg.training_text.kip
 cat data/ftg/ftg.training_text.poj data/ftg/ftg.training_text.kip > data/ftg/ftg.training_text
 #+end_src
+
+We don't normalize the original POJ because kesi's normalization kills whitespaces which I kind of want. This should hopefully be fine?
 
 ** Generating ground truth
 
@@ -160,4 +160,13 @@ make plot MODEL_NAME=ftg
 
 #+begin_src shell
 make evaluation MODEL_NAME=ftg
+#+end_src
+
+* 2026-06-10T19:12:31+09:00
+
+I see an error about not finding some stuff from Latin during generate?
+
+#+begin_src sh
+mkdir -p data/tessdata/script
+wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
 #+end_src
