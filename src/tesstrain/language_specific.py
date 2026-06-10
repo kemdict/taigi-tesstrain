@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 VALID_LANGUAGE_CODES = (
     'afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat '
     'ceb ces chi_sim chi_tra chr cym cyr_lid dan deu deu_latf div '
-    'dzo ell eng enm epo est eus fas fil fin fra  frm gle glg '
+    'dzo ell eng enm epo est eus fas fil fin fra  frm ftg gle glg '
     'grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old '
     'jav jav_java jpn kan kat kat_old kaz khm kir kmr kor kur_ara lao lat '
     'lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori '
