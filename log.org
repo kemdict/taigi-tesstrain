@@ -66,13 +66,51 @@ make training MODEL_NAME=foo START_MODEL=eng TESSDATA="data/tessdata"
 
 Yes, this works.
 
-* Data
-
-Not in README but we can see this in src/.
-
+* Preparing data
 ** TODO Put training text in data/<lang>/<lang>.training_text
 
+Not in README but we can see this in src/tesstrain/arguments.py.
+
 This is one file, not a folder. It is passed to text2image, which is an executable that is also a part of tesseract.
+
+There are two easy sources we can pull this from: Kautian examples plus words etc. collected in Kemdict; or the existing digitization of parts of Taiwan Church News from [[https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh][Taiwanese-Corpus/Khin-hoan_2010_pojbh]]. I'll use the latter.
+
+*** Grab the JSON and make types from it for convenience
+#+begin_src shell
+wget -O pojbh.json "https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json"
+#+end_src
+
+#+begin_src shell
+echo '
+// deno-lint-ignore-file no-import-prefix no-unversioned-import
+import fs from "node:fs";
+import { JsonToTS } from "npm:@kemdict/json-to-ts";
+
+const data = JSON.parse(
+  fs.readFileSync("pojbh.json", {
+    encoding: "utf-8",
+  }),
+);
+fs.writeFileSync(
+  "pojbh.json.d.ts",
+  JsonToTS(data, { export: true }).join("\n"),
+);
+' > types.ts
+deno run -A types.ts
+rm types.ts
+#+end_src
+
+(I wish there's a better way)
+
+*** Extract strings
+
+See =extract.ts=
+
+#+begin_src shell
+node extract.ts
+#+end_src
+
+#+RESULTS:
 
 ** Fine-tune with the training text
 
