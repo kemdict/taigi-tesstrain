@@ -72,3 +72,8 @@ for (let i = 0; i < buckets.length; i++) {
   const bucket = buckets[i];
   fs.writeFileSync(`${dir}/ftg.training_text.${i}.poj`, bucket.join("\n"));
 }
+
+fs.writeFileSync(
+  `${dir}/ftg.training_text.all.poj`,
+  buckets.map((bucket) => bucket.join("\n")).join("\n"),
+);
