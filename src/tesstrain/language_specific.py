@@ -150,6 +150,13 @@ EARLY_LATIN_FONTS = [
     'GentiumAlt',
 ]
 
+TAIGI_FONTS = [
+    'Liberation Serif',
+    'Noto Serif',
+    'Charis',
+    'Iosevka',
+]
+
 VIETNAMESE_FONTS = [
     'Arial Unicode MS Bold',
     'Arial Bold Italic',
@@ -972,6 +979,10 @@ def set_lang_specific_parameters(ctx, lang):
         WORD_DAWG_SIZE = 1_000_000
     elif lang == 'pol':
         WORD_DAWG_SIZE = 1_000_000
+    elif lang == 'ftg':
+        TRAINING_DATA_ARGUMENTS += ['--infrequent_ratio=10000']
+        if not FONTS:
+            FONTS = TAIGI_FONTS
 
         # Latin with default treatment.
     elif lang == 'afr':

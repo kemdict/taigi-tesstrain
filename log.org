@@ -67,7 +67,7 @@ make training MODEL_NAME=foo START_MODEL=eng TESSDATA="data/tessdata"
 Yes, this works.
 
 * Preparing data
-** TODO Put training text in data/<lang>/<lang>.training_text
+** DONE Put training text in data/<lang>/<lang>.training_text
 
 Not in README but we can see this in src/tesstrain/arguments.py.
 
@@ -125,6 +125,16 @@ bunx @kemdict/kesi --to poj --input data/ftg/ftg.training_text --output data/ftg
 bunx @kemdict/kesi --to kip --input data/ftg/ftg.training_text --output data/ftg/ftg.training_text.kip
 cat data/ftg/ftg.training_text.poj data/ftg/ftg.training_text.kip > data/ftg/ftg.training_text
 #+end_src
+
+** Generating ground truth
+
+We cannot run training yet as we do not have ground truth.
+
+#+begin_src shell
+uv run python src/tesstrain --linedata_only --lang ftg --langdata_dir data --tessdata_dir data/tessdata --fontlist 'Liberation Serif' 'Noto Serif'
+#+end_src
+
+This complains the language code isn't valid. We have to add it to language_specific.py.
 
 ** Fine-tune with the training text
 
