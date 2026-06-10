@@ -107,21 +107,21 @@ rm types.ts
 See =extract.ts=
 
 #+begin_src shell :results none
-mkdir -p data/ftg
-node extract.ts > data/ftg/ftg.training_text.poj
+mkdir -p data/langdata/ftg
+node extract.ts > data/langdata/ftg/ftg.training_text.poj
 #+end_src
 
 Also throw all valid syllables into the file (relies on =kisaragi-rime-taigi=)
 
 #+begin_src shell :results none
-cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >> data/ftg/ftg.training_text
+cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >> data/langdata/ftg/ftg.training_text
 #+end_src
 
 Make sure we have both POJ and TL, then merge them back.
 
 #+begin_src shell
-bunx @kemdict/kesi --to kip --input data/ftg/ftg.training_text.poj --output data/ftg/ftg.training_text.kip
-cat data/ftg/ftg.training_text.poj data/ftg/ftg.training_text.kip > data/ftg/ftg.training_text
+bunx @kemdict/kesi --to kip --input data/langdata/ftg/ftg.training_text.poj --output data/langdata/ftg/ftg.training_text.kip
+cat data/langdata/ftg/ftg.training_text.poj data/langdata/ftg/ftg.training_text.kip > data/langdata/ftg/ftg.training_text
 #+end_src
 
 We don't normalize the original POJ because kesi's normalization kills whitespaces which I kind of want. This should hopefully be fine?
@@ -131,7 +131,7 @@ We don't normalize the original POJ because kesi's normalization kills whitespac
 We cannot run training yet as we do not have ground truth.
 
 #+begin_src shell
-uv run python src/tesstrain --linedata_only --lang ftg --langdata_dir data --tessdata_dir data/tessdata --fontlist 'Liberation Serif' 'Noto Serif'
+uv run python src/tesstrain --linedata_only --lang ftg --langdata_dir data/langdata --tessdata_dir data/tessdata --fontlist 'Liberation Serif' 'Noto Serif'
 #+end_src
 
 This complains the language code isn't valid. We have to add it to language_specific.py.
