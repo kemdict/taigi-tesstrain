@@ -11,6 +11,10 @@ if [ ! -f "$DIR/ftg.training_text" ]; then
     cat "$DIR"/ftg.training_text.poj "$DIR"/ftg.training_text.kip >"$DIR"/ftg.training_text
 fi
 make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
-uv run python src/tesstrain --linedata_only --lang ftg --langdata_dir data/langdata --tessdata_dir data/tessdata
+uv run python src/tesstrain --linedata_only \
+    --lang ftg \
+    --langdata_dir data/langdata \
+    --tessdata_dir data/tessdata \
+    --output_dir data/ftg
 make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
 make traineddata MODEL_NAME=ftg
