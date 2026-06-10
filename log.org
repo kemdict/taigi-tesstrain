@@ -30,7 +30,7 @@ mkdir -p data/ftg-ground-truth
 
 The issue is that this seems to need images to be split into lines. I guess I'm not doing this.
 
-* Trying out TESSDATA
+* Trying out =TESSDATA=
 
 Unzip ocrd-testset.zip then put it into data/foo-ground-truth as instructed by readme
 
@@ -129,7 +129,8 @@ cat data/ftg/ftg.training_text.poj data/ftg/ftg.training_text.kip > data/ftg/ftg
 ** Fine-tune with the training text
 
 #+begin_src sh
-make training MODEL_NAME=ftg START_MODEL=eng
+make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
+make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
 #+end_src
 
 This creates checkpoint files.
