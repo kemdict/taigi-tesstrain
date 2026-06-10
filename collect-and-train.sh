@@ -2,6 +2,8 @@
 set -euo pipefail
 set -x
 
+SPLIT=true
+
 TRAINING_TEXT_DIR=data/langdata/ftg
 if [ ! -f "$TRAINING_TEXT_DIR" ]; then
     mkdir -p "$TRAINING_TEXT_DIR"
@@ -31,23 +33,26 @@ uv run python src/tesstrain --linedata_only \
     --tessdata_dir /usr/share/tessdata \
     --training_text "$TRAINING_DIR"/ftg.training_text.all.txt \
     --output_dir "$GT_DIR"
-# Prefer the segmented lstmf files
-find "$GT_DIR" -path "*.lstmf" -delete
-# Then generate the lstmf files for segments
-find "$TRAINING_TEXT_DIR" -type f -path "*.txt" | while read -r f; do
-    if [ "$(basename "$f")" == ftg.training_text.all.txt ]; then
-        continue
-    fi
-    rm -rf data/tmp
-    mkdir -p data/tmp
-    uv run python src/tesstrain --linedata_only \
-        --lang ftg \
-        --langdata_dir data/langdata \
-        --tessdata_dir /usr/share/tessdata \
-        --training_text "$f" \
-        --output_dir data/tmp
-    find data/tmp -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
-done
+
+if [ -n "$SPLIT" ]; then
+    # Prefer the segmented lstmf files
+    find "$GT_DIR" -path "*.lstmf" -delete
+    # Then generate the lstmf files for segments
+    find "$TRAINING_TEXT_DIR" -type f -path "*.txt" | while read -r f; do
+        if [ "$(basename "$f")" == ftg.training_text.all.txt ]; then
+            continue
+        fi
+        rm -rf data/tmp
+        mkdir -p data/tmp
+        uv run python src/tesstrain --linedata_only \
+            --lang ftg \
+            --langdata_dir data/langdata \
+            --tessdata_dir /usr/share/tessdata \
+            --training_text "$f" \
+            --output_dir data/tmp
+        find data/tmp -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
+    done
+fi
 
 mv "$GT_DIR"/ftg "$OUTPUT_DIR"
 find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
