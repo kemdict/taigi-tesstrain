@@ -21,3 +21,80 @@ make tesseract-langdata
 * Choosing model name
 
 I will use =ftg= as the model name. This is currently a bit premature but we can always just rename it to =nan= if that is necessary.
+
+* data/MODEL-ground-truth
+
+#+begin_src shell
+mkdir -p data/ftg-ground-truth
+#+end_src
+
+The issue is that this seems to need images to be split into lines. I guess I'm not doing this.
+
+* Trying out TESSDATA
+
+Unzip ocrd-testset.zip then put it into data/foo-ground-truth as instructed by readme
+
+Can I just specify =START_MODEL= like this?
+
+#+begin_src shell
+make training MODEL_NAME=foo START_MODEL=eng
+#+end_src
+
+: Failed to read /home/kisaragi-hiu/git/tesstrain/usr/share/tessdata/eng.traineddata
+
+Nope. Can I just use the tessdata that's installed on my system then?
+
+#+begin_src shell
+make training MODEL_NAME=foo START_MODEL=eng TESSDATA="/usr/share/tessdata"
+#+end_src
+
++Seemingly yes.+ Nope.
+
+: Error, data/eng/foo.lstm is an integer (fast) model, cannot continue training
+
+#+begin_src shell
+mkdir -p data/tessdata
+make training MODEL_NAME=foo START_MODEL=eng TESSDATA="data/tessdata"
+#+end_src
+
+This doesn't work either. Guess we have to semi-manually download it.
+
+#+begin_src shell
+make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
+make training MODEL_NAME=foo START_MODEL=eng TESSDATA="data/tessdata"
+#+end_src
+
+Yes, this works.
+
+* Data
+
+Not in README but we can see this in src/.
+
+** TODO Put training text in data/<lang>/<lang>.training_text
+
+This is one file, not a folder. It is passed to text2image, which is an executable that is also a part of tesseract.
+
+** Fine-tune with the training text
+
+#+begin_src sh
+make training MODEL_NAME=ftg START_MODEL=eng
+#+end_src
+
+This creates checkpoint files.
+
+** Create .traineddata from checkpoints
+
+#+begin_src sh
+make traineddata MODEL_NAME=ftg
+#+end_src
+
+This outputs to data/<model>/ by default.
+
+* Evaluation
+#+begin_src shell
+make plot MODEL_NAME=ftg
+#+end_src
+
+#+begin_src shell
+make evaluation MODEL_NAME=ftg
+#+end_src
