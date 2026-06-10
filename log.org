@@ -1,0 +1,23 @@
+#+title: Log
+#+created: 2026-06-10T12:32:33+0900
+
+My progress log notebook for training Tesseract for Taigi.
+
+* Install deps
+
+#+begin_src shell
+uv venv .venv
+uv pip install -r requirements.txt
+#+end_src
+
+* Langdata
+
+As the readme mentions. While this will be run automatically we might as well run it first to see what files are around.
+
+#+begin_src shell
+make tesseract-langdata
+#+end_src
+
+* Choosing model name
+
+I will use =ftg= as the model name. This is currently a bit premature but we can always just rename it to =nan= if that is necessary.
