@@ -41,5 +41,4 @@ for (const article of articles) {
   lines.push("");
 }
 
-fs.mkdirSync("data/ftg", { recursive: true });
-fs.writeFileSync("data/ftg/ftg.training_text", lines.join("\n"));
+process.stdout.write(lines.join("\n"));
