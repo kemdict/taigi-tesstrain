@@ -2,3 +2,4 @@
 *.built
 *.BAK
 *~
+.mypy_cache
