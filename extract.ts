@@ -1,4 +1,6 @@
 import fs from "node:fs";
+import { parseArgs } from "node:util";
+
 const articles = JSON.parse(
   fs.readFileSync("pojbh.json", { encoding: "utf-8" }),
 ) as Array<{
@@ -14,8 +16,33 @@ const articles = JSON.parse(
   頁數: string;
 }>;
 
-const lines: string[] = [];
-for (const article of articles) {
+const parsedArgs = parseArgs({
+  args: process.argv.slice(2),
+  allowPositionals: true,
+  options: {
+    help: { type: "boolean", short: "h" },
+  },
+});
+
+if (parsedArgs.values.help) {
+  console.log(`extract.ts <dir>
+Extract articles to <dir>.`);
+  process.exit(0);
+}
+const dir = parsedArgs.positionals[0];
+if (!dir) {
+  console.log("Dir not provided");
+  process.exit(1);
+}
+
+const buckets: string[][] = [];
+for (let i = 0; i < articles.length; i++) {
+  const article = articles[i];
+  const size = 100;
+  const bucketIndex = Math.floor(i / size);
+  buckets[bucketIndex] ||= [];
+  const bucket = buckets[bucketIndex];
+
   // not perfect, eg. "許Khó-niá Khó͘ Khó-niá" becomes "Khó-niá Khó͘ Khó-niá" even
   // though it should be just Khó͘ Khó-niá
   // but for recognition this should be fine?
@@ -26,11 +53,11 @@ for (const article of articles) {
     .replaceAll(/  +/g, " ")
     .trim();
   const title = article.篇名.replace(/^.*\[ (.*) \]$/, "$1");
-  lines.push(title);
-  if (author) lines.push(author);
-  lines.push(article.日期);
+  bucket.push(title);
+  if (author) bucket.push(author);
+  bucket.push(article.日期);
   for (const line of article.tailo) {
-    lines.push(
+    bucket.push(
       line
         .replaceAll("（", " (")
         .replaceAll("）", ")")
@@ -38,7 +65,10 @@ for (const article of articles) {
         .replaceAll(/^([a-z\d]+)\.([^ ])/g, "$1. $2"),
     );
   }
-  lines.push("");
+  bucket.push("");
 }
 
-process.stdout.write(lines.join("\n"));
+for (let i = 0; i < buckets.length; i++) {
+  const bucket = buckets[i];
+  fs.writeFileSync(`${dir}/ftg.training_text.${i}.poj`, bucket.join("\n"));
+}

@@ -2,26 +2,25 @@
 set -euo pipefail
 set -x
 
-TESTING=true
 TRAINING_TEXT_DIR=data/langdata/ftg
-if [ ! -f "$TRAINING_TEXT_DIR/ftg.training_text" ]; then
+if [ ! -f "$TRAINING_TEXT_DIR" ]; then
     mkdir -p "$TRAINING_TEXT_DIR"
-    node extract.ts >"$TRAINING_TEXT_DIR"/ftg.training_text.poj
-    cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.poj
-    bunx @kemdict/kesi --to kip --input "$TRAINING_TEXT_DIR"/ftg.training_text.poj --output "$TRAINING_TEXT_DIR"/ftg.training_text.kip
-    if [ -n "$TESTING" ]; then
-        cat "$TRAINING_TEXT_DIR"/ftg.training_text.poj "$TRAINING_TEXT_DIR"/ftg.training_text.kip | head -n 1000 >"$TRAINING_TEXT_DIR"/ftg.training_text
-    else
-        cat "$TRAINING_TEXT_DIR"/ftg.training_text.poj "$TRAINING_TEXT_DIR"/ftg.training_text.kip >"$TRAINING_TEXT_DIR"/ftg.training_text
-    fi
+    node extract.ts "$TRAINING_TEXT_DIR"
+    set +x
+    # https://stackoverflow.com/a/3741624
+    find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
+        cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$f"
+    done
+    set -x
+    parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
 fi
 
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 rm -rf "$GT_DIR" "$OUTPUT_DIR"
 
-# We need more than just the trainedmodel files from tessdata. The system
-# install works for this.
+# We need more than just the trainedmodel files from tessdata.
+# /usr/share/tessdata works for this.
 uv run python src/tesstrain --linedata_only \
     --lang ftg \
     --langdata_dir data/langdata \
