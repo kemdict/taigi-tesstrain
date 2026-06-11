@@ -31,7 +31,7 @@ uv run python src/tesstrain --linedata_only \
     --lang ftg \
     --langdata_dir data/langdata \
     --tessdata_dir /usr/share/tessdata \
-    --training_text "$TRAINING_DIR"/ftg.training_text.all.txt \
+    --training_text "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
     --output_dir "$GT_DIR"
 
 if [ -n "$SPLIT" ]; then
