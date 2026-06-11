@@ -11,10 +11,8 @@ make_text() {
     if [ ! -d "$TRAINING_TEXT_DIR" ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         node extract.ts "$TRAINING_TEXT_DIR"
-        # https://stackoverflow.com/a/3741624
-        find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
-            cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$f"
-        done
+        cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml |
+            sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
             cat "$f" "${f%.*}".kip >"${f%.*}".txt
