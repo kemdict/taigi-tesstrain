@@ -3,61 +3,75 @@ set -euo pipefail
 set -x
 
 SPLIT=true
-
 TRAINING_TEXT_DIR=data/langdata/ftg
-if [ ! -d "$TRAINING_TEXT_DIR" ]; then
-    mkdir -p "$TRAINING_TEXT_DIR"
-    node extract.ts "$TRAINING_TEXT_DIR"
-    # https://stackoverflow.com/a/3741624
-    find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
-        cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$f"
-    done
-    parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
-    find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
-        cat "$f" "${f%.*}".kip >"${f%.*}".txt
-    done
-    find "$TRAINING_TEXT_DIR" -type f -path "*.poj" -delete
-    find "$TRAINING_TEXT_DIR" -type f -path "*.kip" -delete
-fi
-
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
-rm -rf "$GT_DIR" "$OUTPUT_DIR"
 
-# Generate the main thing first for more complete unicharset etc.
-# We need more than just the trainedmodel files from tessdata.
-# /usr/share/tessdata works for this.
-uv run python src/tesstrain --linedata_only \
-    --lang ftg \
-    --langdata_dir data/langdata \
-    --tessdata_dir /usr/share/tessdata \
-    --training_text "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-    --output_dir "$GT_DIR"
+make_text() {
+    if [ ! -d "$TRAINING_TEXT_DIR" ]; then
+        mkdir -p "$TRAINING_TEXT_DIR"
+        node extract.ts "$TRAINING_TEXT_DIR"
+        # https://stackoverflow.com/a/3741624
+        find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
+            cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml | sed '/[:\.#-]/d;s/\t.*//' >>"$f"
+        done
+        parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
+        find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
+            cat "$f" "${f%.*}".kip >"${f%.*}".txt
+        done
+        find "$TRAINING_TEXT_DIR" -type f -path "*.poj" -delete
+        find "$TRAINING_TEXT_DIR" -type f -path "*.kip" -delete
+    fi
+}
 
-if [ -n "$SPLIT" ]; then
-    # Prefer the segmented lstmf files
-    find "$GT_DIR" -path "*.lstmf" -delete
-    # Then generate the lstmf files for segments
-    find "$TRAINING_TEXT_DIR" -type f -path "*.txt" | while read -r f; do
-        if [ "$(basename "$f")" == ftg.training_text.all.txt ]; then
-            continue
-        fi
-        rm -rf data/tmp
-        mkdir -p data/tmp
-        uv run python src/tesstrain --linedata_only \
-            --lang ftg \
-            --langdata_dir data/langdata \
-            --tessdata_dir /usr/share/tessdata \
-            --training_text "$f" \
-            --output_dir data/tmp
-        find data/tmp -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
-    done
-fi
+make_one_lstmf() {
+    local f="$1"
+    local short="$(basename "$f" .txt | sed s/training_text.//)"
+    if [ "$short" == ftg.all ]; then
+        return
+    fi
+    mkdir -p data/ftg-parts/
+    uv run python src/tesstrain --linedata_only \
+        --lang ftg \
+        --langdata_dir data/langdata \
+        --tessdata_dir /usr/share/tessdata \
+        --training_text "$f" \
+        --output_dir data/ftg-parts/"$short"
+    find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
+}
+export -f make_one_lstmf
 
-mv "$GT_DIR"/ftg "$OUTPUT_DIR"
-find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+make_lstmf() {
+    rm -rf "$GT_DIR" "$OUTPUT_DIR"
+    # Generate the main thing first for more complete unicharset etc.
+    # We need more than just the trainedmodel files from tessdata.
+    # /usr/share/tessdata works for this.
+    # uv run python src/tesstrain --linedata_only \
+    #     --lang ftg \
+    #     --langdata_dir data/langdata \
+    #     --tessdata_dir /usr/share/tessdata \
+    #     --training_text "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+    #     --output_dir "$GT_DIR"
+    
+    mkdir -p "$GT_DIR"
+    if [ -n "$SPLIT" ]; then
+        # Prefer the segmented lstmf files
+        # find "$GT_DIR" -path "*.lstmf" -delete
+        # Then generate the lstmf files for segments
+        find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf 
+        find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
+    fi
+    
+    mv "$GT_DIR"/ftg "$OUTPUT_DIR"
+    find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
+    cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+}
 
-make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
-make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
-make traineddata MODEL_NAME=ftg
+train() {
+    make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
+    make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
+    make traineddata MODEL_NAME=ftg
+}
+
+# make_text
+make_lstmf
