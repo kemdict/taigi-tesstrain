@@ -5,7 +5,7 @@ set -x
 SPLIT=true
 
 TRAINING_TEXT_DIR=data/langdata/ftg
-if [ ! -f "$TRAINING_TEXT_DIR" ]; then
+if [ ! -d "$TRAINING_TEXT_DIR" ]; then
     mkdir -p "$TRAINING_TEXT_DIR"
     node extract.ts "$TRAINING_TEXT_DIR"
     # https://stackoverflow.com/a/3741624
