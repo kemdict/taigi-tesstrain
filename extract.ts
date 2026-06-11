@@ -38,7 +38,7 @@ if (!dir) {
 const buckets: string[][] = [];
 for (let i = 0; i < articles.length; i++) {
   const article = articles[i];
-  const size = 100;
+  const size = 10;
   const bucketIndex = Math.floor(i / size);
   buckets[bucketIndex] ||= [];
   const bucket = buckets[bucketIndex];
