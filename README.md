@@ -14,6 +14,10 @@ Put the ftg.traineddata file in a folder (for example "my-tessdata-dir"), then c
 tesseract --tessdata-dir "my-tessdata-dir" -l ftg input-image.png output-basename
 ```
 
+## Future work
+
+wordlist? other config stuff? upstreaming?
+
 ## Reproducing the training
 
 ### Required programs
