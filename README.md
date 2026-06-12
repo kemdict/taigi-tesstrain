@@ -8,10 +8,14 @@ This training uses synthetic images, fine tuned on top of the English model.
 
 ## Using the trained model
 
-Put the ftg.traineddata file in a folder (for example "my-tessdata-dir"), then call
+Pick ftg-best.traineddata or ftg-fast.traineddata, then download it into a folder and rename it as `ftg.traineddata`.
+
+("best" is like [tessdata_best](https://github.com/tesseract-ocr/tessdata_best): float models that can used for finetuning; "fast" is like [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast): int models that are also made smaller.)
+
+Then, if the folder you put it into is called `my-tessdata`, run:
 
 ```sh
-tesseract --tessdata-dir "my-tessdata-dir" -l ftg input-image.png output-basename
+tesseract --tessdata-dir "my-tessdata" -l ftg input-image.png output-basename
 ```
 
 ## Future work

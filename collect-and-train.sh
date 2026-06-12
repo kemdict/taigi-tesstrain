@@ -98,7 +98,16 @@ train() {
     set -x
     make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
     make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
-    make traineddata MODEL_NAME=ftg
+    mv data/ftg.traineddata data/ftg-best.traineddata
+    # Also generate the "fast" model (I think this is called quantization nowadays)
+    local PROTO_MODEL=data/ftg/ftg.traineddata
+    local LAST_CHECKPOINT=data/ftg/checkpoints/ftg_checkpoint
+    lstmtraining \
+        --stop_training \
+        --continue_from "$LAST_CHECKPOINT" \
+        --traineddata "$PROTO_MODEL" \
+        --convert_to_int \
+        --model_output data/ftg-fast.traineddata
 }
 
 make_text
