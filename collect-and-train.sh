@@ -9,7 +9,7 @@ make_text() {
     if [ ! -d "$TRAINING_TEXT_DIR" ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
-        cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml |
+        curl -L https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/yataigi-poj.syllables.dict.yaml |
             sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
