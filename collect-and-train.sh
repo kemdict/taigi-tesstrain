@@ -23,7 +23,8 @@ make_text() {
 
 make_one_lstmf() {
     local f="$1"
-    local short="$(basename "$f" .txt | sed s/training_text.//)"
+    local short
+    short="$(basename "$f" .txt | sed s/training_text.//)"
     if [ "$short" == ftg.all ]; then
         return
     fi
