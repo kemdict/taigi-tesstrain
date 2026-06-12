@@ -52,7 +52,7 @@ make_full_lstmf() {
 
 make_split_lstmf() {
     # Generate the lstmf files for each segments
-    find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf 
+    find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf
     # mkdir -p "$GT_DIR"
     # find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
     # mv "$GT_DIR"/ftg "$OUTPUT_DIR"
@@ -66,5 +66,5 @@ train() {
     make traineddata MODEL_NAME=ftg
 }
 
-# make_text
+make_text
 make_split_lstmf
