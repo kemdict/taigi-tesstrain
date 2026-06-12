@@ -55,10 +55,22 @@ make_split_lstmf() {
     # Generate the lstmf files for each segments
     find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf
     # mkdir -p "$GT_DIR"
-    # find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
-    # mv "$GT_DIR"/ftg "$OUTPUT_DIR"
-    # find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-    # cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+    # They all have the same basename, so add their dirnames onto the final name
+    # to avoid overwriting them
+    # And just in case, also use mv -n to not overwrite anything
+    mkdir -p "$GT_DIR" "$OUTPUT_DIR"
+    find data/ftg-parts -path "*.lstmf" -print0 |
+        parallel -0 mv -n '{}' "$GT_DIR"/'{//}'-'{/}'
+    find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
+    cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+}
+
+merge_our_unicharsets() {
+    # We can probably also just rely on the Makefile instead, which takes
+    # ALL_GT, runs unicharset_extractor on it, then merges it with the
+    # unicharset of the START_MODEL.
+    readarray files < <(find data/ftg-parts -path "*.unicharset")
+    merge_unicharsets "${files[@]}" "$OUTPUT_DIR"/unicharset
 }
 
 train() {
