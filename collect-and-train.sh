@@ -95,6 +95,7 @@ merge_our_unicharsets() {
 }
 
 train() {
+    set -x
     make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
     make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     make traineddata MODEL_NAME=ftg
@@ -102,3 +103,4 @@ train() {
 
 make_text
 make_split_lstmf
+train
