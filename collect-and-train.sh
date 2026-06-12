@@ -9,7 +9,7 @@ OUTPUT_DIR=data/ftg
 make_text() {
     if [ ! -d "$TRAINING_TEXT_DIR" ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
-        node extract.ts "$TRAINING_TEXT_DIR"
+        node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
         cat ~/git/kisaragi-rime-taigi/taigi-poj.syllables.dict.yaml |
             sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj

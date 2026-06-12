@@ -21,12 +21,17 @@ const parsedArgs = parseArgs({
   allowPositionals: true,
   options: {
     help: { type: "boolean", short: "h" },
+    "bucket-size": { type: "string" },
   },
 });
 
 if (parsedArgs.values.help) {
   console.log(`extract.ts <dir>
-Extract articles to <dir>.`);
+Extract articles to <dir>.
+
+Options:
+  --bucket-size <number>: number of articles per part (default 10)
+  -h, --help: show help (this string)`);
   process.exit(0);
 }
 const dir = parsedArgs.positionals[0];
@@ -34,11 +39,16 @@ if (!dir) {
   console.log("Dir not provided");
   process.exit(1);
 }
-
+const bucketSizeStr = parsedArgs.values["bucket-size"] || "10";
+const bucketSize = parseInt(bucketSizeStr);
+if (!(bucketSize > 0)) {
+  console.log("bucket size must be > 0");
+  process.exit(1);
+}
 const buckets: string[][] = [];
 for (let i = 0; i < articles.length; i++) {
   const article = articles[i];
-  const size = 10;
+  const size = bucketSize;
   const bucketIndex = Math.floor(i / size);
   buckets[bucketIndex] ||= [];
   const bucket = buckets[bucketIndex];
