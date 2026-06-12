@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
 
 TRAINING_TEXT_DIR=data/langdata/ftg
 GT_DIR=data/ftg-ground-truth
@@ -52,6 +51,10 @@ make_full_lstmf() {
 }
 
 make_split_lstmf() {
+    if [ -d "$GT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
+        echo "$GT_DIR" and "$OUTPUT_DIR" already present, assuming split lstmf files are already made
+        return
+    fi
     # Generate the lstmf files for each segments
     if [ ! -d data/ftg-parts ]; then
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
@@ -78,7 +81,9 @@ make_split_lstmf() {
     find data/ftg-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
     find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-    cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt >"$OUTPUT_DIR"/all-gt
+    cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+        "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt \
+        >"$OUTPUT_DIR"/all-gt
 }
 
 merge_our_unicharsets() {
