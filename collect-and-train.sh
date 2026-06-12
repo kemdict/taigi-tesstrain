@@ -2,7 +2,6 @@
 set -euo pipefail
 set -x
 
-SPLIT=true
 TRAINING_TEXT_DIR=data/langdata/ftg
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
@@ -35,6 +34,7 @@ make_one_lstmf() {
         --tessdata_dir /usr/share/tessdata \
         --training_text "$f" \
         --output_dir data/ftg-parts/"$short"
+}
 export -f make_one_lstmf
 
 make_full_lstmf() {
@@ -50,14 +50,14 @@ make_full_lstmf() {
         --output_dir "$GT_DIR"
 }
 
-make_lstmf() {
-    mkdir -p "$GT_DIR"
+make_split_lstmf() {
     # Generate the lstmf files for each segments
     find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf 
-    find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
-    mv "$GT_DIR"/ftg "$OUTPUT_DIR"
-    find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-    cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+    # mkdir -p "$GT_DIR"
+    # find data/ftg-parts -path "*.lstmf" -exec mv '{}' "$GT_DIR" ';'
+    # mv "$GT_DIR"/ftg "$OUTPUT_DIR"
+    # find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
+    # cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 }
 
 train() {
@@ -67,4 +67,4 @@ train() {
 }
 
 # make_text
-make_lstmf
+make_split_lstmf
