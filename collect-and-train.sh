@@ -78,7 +78,7 @@ make_split_lstmf() {
     find data/ftg-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
     find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
-    cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
+    cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt >"$OUTPUT_DIR"/all-gt
 }
 
 merge_our_unicharsets() {
