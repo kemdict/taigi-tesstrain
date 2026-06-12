@@ -53,14 +53,30 @@ make_full_lstmf() {
 
 make_split_lstmf() {
     # Generate the lstmf files for each segments
-    find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 | parallel -0 --eta make_one_lstmf
+    if [ ! -d data/ftg-parts ]; then
+        find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
+            parallel -0 --eta make_one_lstmf
+    fi
     # mkdir -p "$GT_DIR"
-    # They all have the same basename, so add their dirnames onto the final name
-    # to avoid overwriting them
-    # And just in case, also use mv -n to not overwrite anything
+
+    # They all have the same basename, so add their directory names onto the
+    # final name to avoid overwriting them.
+    # And just in case, also use mv -n to not overwrite anything.
+    # Note about the {= ... =} magic:
+    # - {= ... =} in Parallel means replace input items with the result of
+    #   running the Perl expression in between
+    # - a sed-style s/from/to/ expression is a valid Perl expression that works
+    #   for this purpose
+    # - We are replacing "^.*\/([^\/]+)\/([^\/]*)" with "\1-\2", to turn
+    #   "path/to/ftg.100/foo.lstmf" into "ftg.100-foo.lstmf".
+    #   (slashes are escaped because a bare slash is part of the s/from/to/ syntax)
+    #   In Elisp rx syntax this would be:
+    #   (rx bol (* any) "/"
+    #       (group (+ (not "/"))) "/"
+    #       (group (* (not "/"))))
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
     find data/ftg-parts -path "*.lstmf" -print0 |
-        parallel -0 mv -n '{}' "$GT_DIR"/'{//}'-'{/}'
+        parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
     find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
     cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 }
