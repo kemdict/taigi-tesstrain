@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@kemdict/kesi": "^0.3.1"
+  }
+}

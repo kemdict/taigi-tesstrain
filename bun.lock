@@ -1,0 +1,14 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "dependencies": {
+        "@kemdict/kesi": "^0.3.1",
+      },
+    },
+  },
+  "packages": {
+    "@kemdict/kesi": ["@kemdict/kesi@0.3.1", "", { "bin": { "kemdict-kesi": "dist/cli.js" } }, "sha512-9WJZqwmZSHrLUhSri0cyvw+ecykI0ZwJkuAxAI1wbwVYMPl6a9pma8Y+BtfvY0Mp/Nut4Tfvy6JqEquZeid4vA=="],
+  }
+}

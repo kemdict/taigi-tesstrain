@@ -11,4 +11,8 @@
 *.BAK
 *~
 .mypy_cache
+node_modules
+
 pojbh.json
+essay-taigi.txt
+yataigi-poj.syllables.dict.yaml

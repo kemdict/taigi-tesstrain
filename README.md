@@ -31,13 +31,12 @@ I'm running this on Linux. This will fail on macOS because I assume one location
 - `bash`, `make` (4.2+), `wget`, `find`, `unzip` for the original Makefile
 - `tesseract` (5.3+): As with the original tesstrain:
   > You will need a recent version (>= 5.3) of tesseract built with the training tools and matching leptonica bindings.
-- `node` for the `extract.ts` glue code
+- `node` or `bun` for the `extract.ts` glue code
 - `bun` for running my `@kemdict/kesi` port of [i3thuan5/KeSi](https://github.com/i3thuan5/KeSi)
-  - Sorry, simplifying my dependencies is currently out of scope as I figure things out
-  - I'm using `bunx` because I haven't set up a package.json yet.
+  - A `bun install` to install JS dependencies (just `@kemdict/kesi`) is advisable, though `collect-and-train.sh` does this automatically.
 - `uv` and `python` for running the tesstrain module.
   - I've pinned Python to 3.14, which should be easy to get with `uv`.
-  - A `uv sync` should be run to install Python dependencies.
+  - A `uv sync` to install Python dependencies is advisable, though `collect-and-train.sh` also does this automatically.
 - `bash`, `parallel`, `sed` for the `collect-and-train.sh` entry point
 
 ### Data
