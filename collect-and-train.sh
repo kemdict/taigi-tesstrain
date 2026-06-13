@@ -5,13 +5,28 @@ TRAINING_TEXT_DIR=data/langdata/ftg
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 
+download_one() {
+    if [ -f "$1" ]; then return; fi
+    echo "Downloading $1 from $2..."
+    wget -O "$1" "$2"
+}
+
+download_data() {
+    download_one pojbh.json 'https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json'
+    download_one essay-taigi.txt 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/essay-taigi.txt'
+    download_one yataigi-poj.syllables.dict.yaml 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/yataigi-poj.syllables.dict.yaml'
+    mkdir -p data/tessdata/script
+    download_one data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
+    download_one data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
+}
+
 make_text() {
     if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         echo Extracting training text...
         node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
         echo Copying syllables...
-        cat ../kisaragi-rime-taigi/yataigi-poj.syllables.dict.yaml |
+        cat yataigi-poj.syllables.dict.yaml |
             sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
         echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
@@ -102,11 +117,10 @@ merge_our_unicharsets() {
 
 train() {
     set -x
-    cat ../kisaragi-rime-taigi/essay-taigi.txt |
+    cat essay-taigi.txt |
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
-    make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
     make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
@@ -120,6 +134,7 @@ train() {
         --model_output data/ftg-fast.traineddata
 }
 
+download_data
 make_text
 make_split_lstmf
 train

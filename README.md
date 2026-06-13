@@ -42,13 +42,9 @@ I'm running this on Linux. This will fail on macOS because I assume one location
 
 ### Data
 
-`extract.ts` takes Taigi text from the corpus and assembles them in the right place. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh). You will have to download [`pojbh.json`](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/blob/master/pojbh.json) to `./pojbh.json` first.
+`extract.ts` takes Taigi text from the corpus and assembles them in the right place. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh). You will have to download [`pojbh.json`](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/blob/master/pojbh.json) to `./pojbh.json` first. (This is now automatically done in `collect-and-train.sh`.)
 
-```sh
-wget -O ./pojbh.json "https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json"
-```
-
-I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi), which still needs documentation. (The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.)
+I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi), which still needs documentation. (The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.) (These are also downloaded automatically in `collect-and-train.sh`.)
 
 Tesseract also wants some language / script data to be present. Download langdata (which includes unicharset files for different scripts) with:
 
@@ -56,13 +52,7 @@ Tesseract also wants some language / script data to be present. Download langdat
 make tesseract-langdata
 ```
 
-The “best” (float, not quantized to int) traineddata for Latin (script) and English (language) are also needed, as these are the base models that I'm using.
-
-```sh
-mkdir -p data/tessdata/script
-wget -O data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
-wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
-```
+The “best” (float, not quantized to int) traineddata for Latin (script) and English (language) are also needed, as these are the base models that I'm using. This is now downloaded automatically in `collect-and-train.sh`.
 
 ### Training
 
