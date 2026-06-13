@@ -63,9 +63,14 @@ mkdir -p data/tessdata
 wget -O data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
 wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
 
-## Training
+### Training
 
-Run `bash collect-and-train.sh`. If I did not screw up this should finish with a usable model at `data/ftg.trainedmodel` after about 2 hours.
+Finally run `bash collect-and-train.sh`. If I did not screw up this should finish with a usable model at `data/ftg.trainedmodel` after about 2 hours.
+
+## Changelog
+
+- 0.1.1: add wordlist and punctuations. This seems to have zero effect on the output...
+- 0.1.0: first usable model
 
 ## License
 
