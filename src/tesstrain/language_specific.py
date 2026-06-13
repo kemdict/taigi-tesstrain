@@ -151,10 +151,14 @@ EARLY_LATIN_FONTS = [
 ]
 
 TAIGI_FONTS = [
-    'Liberation Serif',
-    'Noto Serif',
     'Charis',
+    'Dejavu Serif Italic',
+    'Dejavu Serif',
     'Iosevka',
+    'Liberation Serif',
+    'Noto Sans',
+    'Noto Sans CJK TC',
+    'Noto Serif',
     'Roboto Condensed, Condensed',
 ]
 
