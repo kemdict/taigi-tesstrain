@@ -20,7 +20,7 @@ tesseract --tessdata-dir "my-tessdata" -l ftg input-image.png output-basename
 
 ## Future work
 
-wordlist? other config stuff? upstreaming?
+other config stuff? upstreaming?
 
 ## Reproducing the training
 
@@ -48,7 +48,7 @@ I'm running this on Linux. This will fail on macOS because I assume one location
 wget -O ./pojbh.json "https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json"
 ```
 
-`collect-and-train.sh` then also collects a list of valid POJ / TL syllables from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi). (This is now done automatically.)
+I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi), which still needs documentation. (The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.)
 
 Tesseract also wants some language / script data to be present. Download langdata (which includes unicharset files for different scripts) with:
 
@@ -62,9 +62,6 @@ The “best” (float, not quantized to int) traineddata for Latin (script) and 
 mkdir -p data/tessdata
 wget -O data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
 wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
-```
-
-At the same time, certain files from
 
 ## Training
 

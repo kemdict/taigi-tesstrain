@@ -96,6 +96,10 @@ merge_our_unicharsets() {
 
 train() {
     set -x
+    curl -L https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/essay-taigi.txt |
+        awk '{ print $2 "\t" $1 }' |
+        sort -rn |
+        awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
     make TESSDATA="data/tessdata" data/tessdata/eng.traineddata
     make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
