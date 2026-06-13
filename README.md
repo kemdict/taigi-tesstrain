@@ -62,6 +62,7 @@ The “best” (float, not quantized to int) traineddata for Latin (script) and 
 mkdir -p data/tessdata
 wget -O data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
 wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
+```
 
 ### Training
 
