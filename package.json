@@ -1,5 +1,6 @@
 {
   "dependencies": {
     "@kemdict/kesi": "^0.3.1"
-  }
+  },
+  "type": "module"
 }
