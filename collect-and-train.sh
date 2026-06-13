@@ -8,13 +8,18 @@ OUTPUT_DIR=data/ftg
 make_text() {
     if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
+        echo Extracting training text...
         node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
+        echo Copying syllables...
         cat ../kisaragi-rime-taigi/yataigi-poj.syllables.dict.yaml |
             sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
+        echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
+        echo Combining POJ and KIP samples...
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
             cat "$f" "${f%.*}".kip >"${f%.*}".txt
         done
+        echo "Deleting intermediate (non-merged) POJ and KIP files..."
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" -delete
         find "$TRAINING_TEXT_DIR" -type f -path "*.kip" -delete
     fi
