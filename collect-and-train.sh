@@ -56,6 +56,7 @@ make_full_lstmf() {
 }
 
 make_split_lstmf() {
+    echo Generating lstmf files from input text...
     if [ -d "$GT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
         echo "$GT_DIR" and "$OUTPUT_DIR" already present, assuming split lstmf files are already made
         return
