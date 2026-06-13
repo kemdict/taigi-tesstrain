@@ -59,7 +59,9 @@ Finally run `bash collect-and-train.sh`. If I did not screw up this should finis
 
 ## Changelog
 
+- 0.1.2: Actually apply the new wordlist (we weren't putting punc file in the right place).
 - 0.1.1: add wordlist and punctuations. This seems to have zero effect on the output...
+  - Turns out this was a failed run that got masked as a successful run because I had leftover files.
 - 0.1.0: first usable model
 
 ## License
