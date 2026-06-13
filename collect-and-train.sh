@@ -6,10 +6,10 @@ GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 
 make_text() {
-    if [ ! -d "$TRAINING_TEXT_DIR" ]; then
+    if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
-        curl -L https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/yataigi-poj.syllables.dict.yaml |
+        cat ../kisaragi-rime-taigi/yataigi-poj.syllables.dict.yaml |
             sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
@@ -96,7 +96,7 @@ merge_our_unicharsets() {
 
 train() {
     set -x
-    curl -L https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/essay-taigi.txt |
+    cat ../kisaragi-rime-taigi/essay-taigi.txt |
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
