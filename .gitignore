@@ -1,13 +1,11 @@
-# Ignore everything in /data/ except /data/langdata/ftg/ftg.punc.
+# Ignore everything in /data/ except /data/ftg/ftg.punc.
 # (We need to do this dance because "[for performance reasons] it is not possible
 #  to re-include a file if a parent directory of that file is excluded".
 #  https://git-scm.com/docs/gitignore)
 /data/*
-!/data/langdata
-/data/langdata/*
-!/data/langdata/ftg
-/data/langdata/ftg/*
-!/data/langdata/ftg/ftg.punc
+!/data/ftg
+/data/ftg/*
+!/data/ftg/ftg.punc
 
 *.built
 *.BAK
