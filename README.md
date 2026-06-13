@@ -59,7 +59,7 @@ make tesseract-langdata
 The “best” (float, not quantized to int) traineddata for Latin (script) and English (language) are also needed, as these are the base models that I'm using.
 
 ```sh
-mkdir -p data/tessdata
+mkdir -p data/tessdata/script
 wget -O data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
 wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
 ```
