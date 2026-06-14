@@ -119,6 +119,7 @@ merge_our_unicharsets() {
 }
 
 train() {
+    echo Starting training...
     set -x
     cat essay-taigi.txt |
         awk '{ print $2 "\t" $1 }' |
