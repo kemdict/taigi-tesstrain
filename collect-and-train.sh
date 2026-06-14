@@ -81,8 +81,9 @@ make_split_lstmf() {
     fi
     # Generate the lstmf files for each segments
     if [ ! -d data/ftg-parts ]; then
+        # FIXME some of these calls may be failing?
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
-            parallel -0 --eta make_one_lstmf
+            parallel -0 --eta make_one_lstmf || true
     fi
     echo Moving generated lstmf files to the right place...
     set -x
