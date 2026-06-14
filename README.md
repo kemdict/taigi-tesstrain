@@ -39,6 +39,15 @@ I'm running this on Linux. This will fail on macOS because I assume one location
   - A `uv sync` to install Python dependencies is advisable, though `collect-and-train.sh` also does this automatically.
 - `bash`, `parallel`, `sed` for the `collect-and-train.sh` entry point
 
+### Fonts
+
+I'm training on these fonts currently, which need to be installed in /usr/share/fonts.
+
+```python
+# see src/tesstrain/language_specific.py#L153
+'Charis', 'Dejavu Serif Italic', 'Dejavu Serif', 'Iosevka', 'Liberation Serif', 'Noto Sans', 'Noto Sans CJK TC', 'Noto Serif', 'Roboto Condensed, Condensed',
+```
+
 ### Data
 
 `extract.ts` takes Taigi text from the corpus and assembles them in the right place. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh). You will have to download [`pojbh.json`](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/blob/master/pojbh.json) to `./pojbh.json` first. (This is now automatically done in `collect-and-train.sh`.)
