@@ -84,6 +84,8 @@ make_split_lstmf() {
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
             parallel -0 --eta make_one_lstmf
     fi
+    echo Moving generated lstmf files to the right place...
+    set -x
     # mkdir -p "$GT_DIR"
 
     # They all have the same basename, so add their directory names onto the
@@ -104,6 +106,7 @@ make_split_lstmf() {
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
     find data/ftg-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
+    echo Writing OUTPUT_DIR/all-lstmf and OUTPUT_DIR/all-gt files...
     find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt \
