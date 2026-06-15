@@ -15,6 +15,8 @@ download_data() {
     uv sync
     bun install
 
+    make -j4 tesseract-langdata
+
     download_one pojbh.json 'https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json'
     download_one essay-taigi.txt 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/essay-taigi.txt'
     download_one yataigi-poj.syllables.dict.yaml 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/yataigi-poj.syllables.dict.yaml'

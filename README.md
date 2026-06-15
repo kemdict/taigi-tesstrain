@@ -54,11 +54,7 @@ I'm training on these fonts currently, which need to be installed in /usr/share/
 
 I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi), which still needs documentation. (The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.) (These are also downloaded automatically in `collect-and-train.sh`.)
 
-Tesseract also wants some language / script data to be present. Download langdata (which includes unicharset files for different scripts) with:
-
-```sh
-make tesseract-langdata
-```
+Tesseract also wants some language / script data to be present. Download langdata (which includes unicharset files for different scripts) with `make tesseract-langdata`. (This is also now done in `collect-and-train.sh`.
 
 The “best” (float, not quantized to int) traineddata for Latin (script) and English (language) are also needed, as these are the base models that I'm using. This is now downloaded automatically in `collect-and-train.sh`.
 
