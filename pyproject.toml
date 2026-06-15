@@ -8,6 +8,7 @@ dependencies = [
     "matplotlib>=3.10.9",
     "pandas>=3.0.3",
     "pillow>=6.2.1",
+    "pytesstrain>=0.1.16",
     "python-bidi>=0.4",
     "tqdm>=4.68.2",
 ]

@@ -29,13 +29,13 @@ make_text() {
     if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         echo Extracting training text...
-        node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
+        node extract.ts --bucket-size 0 "$TRAINING_TEXT_DIR"
         echo Copying syllables...
         cat yataigi-poj.syllables.dict.yaml |
-            sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
+            sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.all.poj
         echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
-        echo Combining POJ and KIP samples...
+        echo Combining POJ and KIP...
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
             cat "$f" "${f%.*}".kip >"${f%.*}".txt
         done
@@ -45,82 +45,15 @@ make_text() {
     fi
 }
 
-make_one_lstmf() {
-    local f="$1"
-    local short
-    short="$(basename "$f" .txt | sed s/training_text.//)"
-    if [ "$short" == ftg.all ]; then
-        return
-    fi
-    mkdir -p data/ftg-parts/
-    uv run python src/tesstrain --linedata_only \
-        --lang ftg \
-        --langdata_dir data/langdata \
-        --tessdata_dir /usr/share/tessdata \
-        --training_text "$f" \
-        --output_dir data/ftg-parts/"$short"
-}
-export -f make_one_lstmf
 
-make_full_lstmf() {
-    # Generate the main thing first for more complete unicharset etc.
-    # This takes at least 24 hours!
-    # We need more than just the trainedmodel files from tessdata.
-    # /usr/share/tessdata works for this.
-    uv run python src/tesstrain --linedata_only \
-        --lang ftg \
-        --langdata_dir data/langdata \
-        --tessdata_dir /usr/share/tessdata \
-        --training_text "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-        --output_dir "$GT_DIR"
-}
-
-make_split_lstmf() {
-    echo Generating lstmf files from input text...
-    if [ -d "$GT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
-        echo "$GT_DIR" and "$OUTPUT_DIR" already present, assuming split lstmf files are already made
-        return
-    fi
-    # Generate the lstmf files for each segments
-    if [ ! -d data/ftg-parts ]; then
-        # FIXME some of these calls may be failing?
-        find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
-            parallel -0 --eta make_one_lstmf || true
-    fi
-    echo Moving generated lstmf files to the right place...
-    set -x
-    # mkdir -p "$GT_DIR"
-
-    # They all have the same basename, so add their directory names onto the
-    # final name to avoid overwriting them.
-    # And just in case, also use mv -n to not overwrite anything.
-    # Note about the {= ... =} magic:
-    # - {= ... =} in Parallel means replace input items with the result of
-    #   running the Perl expression in between
-    # - a sed-style s/from/to/ expression is a valid Perl expression that works
-    #   for this purpose
-    # - We are replacing "^.*\/([^\/]+)\/([^\/]*)" with "\1-\2", to turn
-    #   "path/to/ftg.100/foo.lstmf" into "ftg.100-foo.lstmf".
-    #   (slashes are escaped because a bare slash is part of the s/from/to/ syntax)
-    #   In Elisp rx syntax this would be:
-    #   (rx bol (* any) "/"
-    #       (group (+ (not "/"))) "/"
-    #       (group (* (not "/"))))
+make_gt() {
+    echo Generating ground truth files from input text...
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
-    find data/ftg-parts -path "*.lstmf" -print0 |
-        parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
+    uv run create_ground_truth -f "Charis,Dejavu Serif Italic,Dejavu Serif,Iosevka,Liberation Serif,Noto Sans,Noto Sans CJK TC,Noto Serif,Roboto Condensed,Condensed" \
+        "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+        "$GT_DIR"
     echo Writing OUTPUT_DIR/all-gt...
-    cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-        "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt \
-        >"$OUTPUT_DIR"/all-gt
-}
-
-merge_our_unicharsets() {
-    # We can probably also just rely on the Makefile instead, which takes
-    # ALL_GT, runs unicharset_extractor on it, then merges it with the
-    # unicharset of the START_MODEL.
-    readarray files < <(find data/ftg-parts -path "*.unicharset")
-    merge_unicharsets "${files[@]}" "$OUTPUT_DIR"/unicharset
+    cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 }
 
 train() {
@@ -130,7 +63,7 @@ train() {
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
-    make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
+    make -j8 training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
     local PROTO_MODEL=data/ftg/ftg.traineddata
@@ -145,5 +78,5 @@ train() {
 
 download_data
 make_text
-make_split_lstmf
+make_gt
 train

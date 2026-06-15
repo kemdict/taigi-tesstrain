@@ -59,6 +59,12 @@ wheels = [
 ]
 
 [[package]]
+name = "editdistance"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/18/9f4f975ca87a390832b1c22478f3702fcdf739f83211e24d054b7551270d/editdistance-0.8.1.tar.gz", hash = "sha256:d1cdf80a5d5014b0c9126a69a42ce55a457b457f6986ff69ca98e4fe4d2d8fed", size = 50006, upload-time = "2024-02-10T07:44:53.914Z" }
+
+[[package]]
 name = "fonttools"
 version = "4.63.0"
 source = { registry = "https://pypi.org/simple" }
@@ -264,6 +270,32 @@ wheels = [
 ]
 
 [[package]]
+name = "pytesseract"
+version = "0.3.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9f/a6/7d679b83c285974a7cb94d739b461fa7e7a9b17a3abfd7bf6cbc5c2394b0/pytesseract-0.3.13.tar.gz", hash = "sha256:4bf5f880c99406f52a3cfc2633e42d9dc67615e69d8a509d74867d3baddb5db9", size = 17689, upload-time = "2024-08-16T02:33:56.762Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/33/8312d7ce74670c9d39a532b2c246a853861120486be9443eebf048043637/pytesseract-0.3.13-py3-none-any.whl", hash = "sha256:7a99c6c2ac598360693d83a416e36e0b33a67638bb9d77fdcac094a3589d4b34", size = 14705, upload-time = "2024-08-16T02:36:10.09Z" },
+]
+
+[[package]]
+name = "pytesstrain"
+version = "0.1.16"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "editdistance" },
+    { name = "pytesseract" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/46/1d/3553329f01fa7a209103f306a32209ef6cddd01a7e6d279ba387a2044a88/pytesstrain-0.1.16.tar.gz", hash = "sha256:d207d520b1985e6d7c6e4fcdade60a9303f385c3180c80efb6baff9373dedc9c", size = 18722, upload-time = "2022-05-02T21:03:18.74Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/db/7a/130b6959770092c6266ff032d0847c98ea2fb01e351b7ae201da3d0b295c/pytesstrain-0.1.16-py3-none-any.whl", hash = "sha256:6085d80bb2c3b9140abc805af0202aa1f819d85cb0912a5a54828371907c419c", size = 23962, upload-time = "2022-05-02T21:03:16.011Z" },
+]
+
+[[package]]
 name = "python-bidi"
 version = "0.6.10"
 source = { registry = "https://pypi.org/simple" }
@@ -328,6 +360,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "pytesstrain" },
     { name = "python-bidi" },
     { name = "tqdm" },
 ]
@@ -337,6 +370,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "pandas", specifier = ">=3.0.3" },
     { name = "pillow", specifier = ">=6.2.1" },
+    { name = "pytesstrain", specifier = ">=0.1.16" },
     { name = "python-bidi", specifier = ">=0.4" },
     { name = "tqdm", specifier = ">=4.68.2" },
 ]
