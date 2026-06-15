@@ -31,6 +31,7 @@ Extract articles to <dir>.
 
 Options:
   --bucket-size <number>: number of articles per part (default 10)
+    Use 0 to disable (don't split output files).
   -h, --help: show help (this string)`);
   process.exit(0);
 }
@@ -41,14 +42,14 @@ if (!dir) {
 }
 const bucketSizeStr = parsedArgs.values["bucket-size"] || "10";
 const bucketSize = parseInt(bucketSizeStr);
-if (!(bucketSize > 0)) {
-  console.log("bucket size must be > 0");
+if (!(bucketSize >= 0)) {
+  console.log("bucket size must be >= 0");
   process.exit(1);
 }
 const buckets: string[][] = [];
 for (let i = 0; i < articles.length; i++) {
   const article = articles[i];
-  const size = bucketSize;
+  const size = Math.max(bucketSize, 1); // use 1 if we specify 0; the disabling logic is below
   const bucketIndex = Math.floor(i / size);
   buckets[bucketIndex] ||= [];
   const bucket = buckets[bucketIndex];
@@ -78,9 +79,11 @@ for (let i = 0; i < articles.length; i++) {
   bucket.push("");
 }
 
-for (let i = 0; i < buckets.length; i++) {
-  const bucket = buckets[i];
-  fs.writeFileSync(`${dir}/ftg.training_text.${i}.poj`, bucket.join("\n"));
+if (bucketSize > 0) {
+  for (let i = 0; i < buckets.length; i++) {
+    const bucket = buckets[i];
+    fs.writeFileSync(`${dir}/ftg.training_text.${i}.poj`, bucket.join("\n"));
+  }
 }
 
 fs.writeFileSync(
