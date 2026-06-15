@@ -131,7 +131,7 @@ train() {
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
-    make training MODEL_NAME=ftg START_MODEL=script/Latin TESSDATA="data/tessdata"
+    make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
     local PROTO_MODEL=data/ftg/ftg.traineddata
