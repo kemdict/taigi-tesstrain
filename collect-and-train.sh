@@ -109,8 +109,7 @@ make_split_lstmf() {
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
     find data/ftg-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
-    echo Writing OUTPUT_DIR/all-lstmf and OUTPUT_DIR/all-gt files...
-    find "$GT_DIR" -path "*.lstmf" >"$OUTPUT_DIR"/all-lstmf
+    echo Writing OUTPUT_DIR/all-gt...
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt \
         >"$OUTPUT_DIR"/all-gt
