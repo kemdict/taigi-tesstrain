@@ -49,7 +49,7 @@ make_text() {
 make_gt() {
     echo Generating ground truth files from input text...
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
-    uv run create_ground_truth -f "Charis,Dejavu Serif Italic,Dejavu Serif,Iosevka,Liberation Serif,Noto Sans,Noto Sans CJK TC,Noto Serif,Roboto Condensed,Condensed" \
+    uv run create_ground_truth -f "Charis,Dejavu Serif Italic,Dejavu Serif,Iosevka,Liberation Serif,Noto Sans,Noto Sans CJK TC,Noto Serif,Fira Sans Compressed Ultra-Condensed" \
         "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         "$GT_DIR"
     echo Writing OUTPUT_DIR/all-gt...
