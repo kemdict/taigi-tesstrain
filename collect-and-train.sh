@@ -57,29 +57,40 @@ make_gt() {
     cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 }
 
+make_one_box() {
+    local image="$1"
+    local noext="$2"
+    if [ -f "$noext".box ]; then return; fi
+    # Copies of variables from the Makefile
+    # The Makefile logic for this variable is to use generate_wordstr_box.py if
+    # LANG_TYPE is Indic or RTL, and generate_line_box.py otherwise (default).
+    GENERATE_BOX_SCRIPT=generate_line_box.py
+    PYTHONIOENCODING=utf-8 uv run python "$GENERATE_BOX_SCRIPT" -i "$image" -t "$noext".gt.txt > "$noext".box
+}; export -f make_one_box
+
 make_one_lstmf() {
     local image="$1"
     local noext="$2"
     if [ -f "$noext".lstmf ]; then return; fi
     # Copies of variables from the Makefile
     PSM=13
-    # The Makefile logic for this variable is to use generate_wordstr_box.py if
-    # LANG_TYPE is Indic or RTL, and generate_line_box.py otherwise (default).
-    GENERATE_BOX_SCRIPT=generate_line_box.py
-    echo Generating "$noext".box...
-    PYTHONIOENCODING=utf-8 uv run python "$GENERATE_BOX_SCRIPT" -i "$image" -t "$noext".gt.txt > "$noext".box
-    echo Generating "$noext".lstmf...
     tesseract "$image" "$noext" --psm "$PSM" lstm.train
 }; export -f make_one_lstmf
 
 make_lstmf() {
     # We do this ourselves to use parallel instead of Make for this step.
     # generate lstmf files
+    echo Generating box files...
     find "$GT_DIR" -path "*.tif" -print0 |
-        parallel --eta -0 make_one_lstmf "{}" "{.}"
+        parallel --eta -0 make_one_box "{}" "{.}" || true
+    echo Generating lstmf files...
+    find "$GT_DIR" -path "*.tif" -print0 |
+        parallel --eta -0 make_one_lstmf "{}" "{.}" || true
+    echo Writing all-lstmf...
     find "$GT_DIR" -path "*.lstmf" > "$OUTPUT_DIR"/all-lstmf
     # Copied from Makefile
     RANDOM_SEED=0
+    echo Shuffling all-lstmf...
     uv run python shuffle.py "$RANDOM_SEED" "$OUTPUT_DIR"/all-lstmf
 }
 
