@@ -82,10 +82,10 @@ make_lstmf() {
     # generate lstmf files
     echo Generating box files...
     find "$GT_DIR" -path "*.tif" -print0 |
-        parallel -0 --eta -j "200%" make_one_box "{}" "{.}" || true
+        parallel --eta -0 make_one_box "{}" "{.}" || true
     echo Generating lstmf files...
     find "$GT_DIR" -path "*.tif" -print0 |
-        parallel -0 --eta -j "200%" make_one_lstmf "{}" "{.}" || true
+        parallel --eta -0 make_one_lstmf "{}" "{.}" || true
     echo Writing all-lstmf...
     find "$GT_DIR" -path "*.lstmf" > "$OUTPUT_DIR"/all-lstmf
     # Copied from Makefile
