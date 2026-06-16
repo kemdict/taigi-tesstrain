@@ -47,6 +47,7 @@ make_text() {
 
 
 make_gt() {
+    if [ -f "$OUTPUT_DIR/all-gt" ]; then return; fi
     echo Generating ground truth files from input text...
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
     uv run create_ground_truth -f "Charis,Dejavu Serif Italic,Dejavu Serif,Iosevka,Liberation Serif,Noto Sans,Noto Sans CJK TC,Noto Serif,Fira Sans Compressed Ultra-Condensed" \
@@ -63,6 +64,7 @@ train() {
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
+
     make -j8 training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
