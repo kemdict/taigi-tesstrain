@@ -57,6 +57,30 @@ make_gt() {
     cp "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt "$OUTPUT_DIR"/all-gt
 }
 
+make_one_lstmf() {
+    local image="$1"
+    local noext="$2"
+    if [ -f "$noext".lstmf ]; then return; fi
+    # Copies of variables from the Makefile
+    PSM=13
+    # The Makefile logic for this variable is to use generate_wordstr_box.py if
+    # LANG_TYPE is Indic or RTL, and generate_line_box.py otherwise (default).
+    GENERATE_BOX_SCRIPT=generate_line_box.py
+    PYTHONIOENCODING=utf-8 uv run python "$(GENERATE_BOX_SCRIPT)" -i "$image" -t "$noext".gt.txt > "$noext".box
+    tesseract "$image" "$noext" --psm "$PSM" lstm.train
+}; export -f make_one_lstmf
+
+make_lstmf() {
+    # We do this ourselves to use parallel instead of Make for this step.
+    # generate lstmf files
+    find "$GT_DIR" -path "*.tif" -print0 |
+        parallel --eta -0 make_one_lstmf "{}" "{.}"
+    find "$GT_DIR" -path "*.lstmf" > "$OUTPUT_DIR"/all-lstmf
+    # Copied from Makefile
+    RANDOM_SEED=0
+    uv run python shuffle.py "$RANDOM_SEED" "$OUTPUT_DIR"/all-lstmf
+}
+
 train() {
     echo Starting training...
     set -x
@@ -65,7 +89,7 @@ train() {
         sort -rn |
         awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
 
-    make -j8 training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
+    make training MODEL_NAME=ftg START_MODEL=eng TESSDATA="data/tessdata"
     mv data/ftg.traineddata data/ftg-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
     local PROTO_MODEL=data/ftg/ftg.traineddata
@@ -81,4 +105,5 @@ train() {
 download_data
 make_text
 make_gt
+make_lstmf
 train
