@@ -66,7 +66,9 @@ make_one_lstmf() {
     # The Makefile logic for this variable is to use generate_wordstr_box.py if
     # LANG_TYPE is Indic or RTL, and generate_line_box.py otherwise (default).
     GENERATE_BOX_SCRIPT=generate_line_box.py
+    echo Generating "$noext".box...
     PYTHONIOENCODING=utf-8 uv run python "$GENERATE_BOX_SCRIPT" -i "$image" -t "$noext".gt.txt > "$noext".box
+    echo Generating "$noext".lstmf...
     tesseract "$image" "$noext" --psm "$PSM" lstm.train
 }; export -f make_one_lstmf
 
