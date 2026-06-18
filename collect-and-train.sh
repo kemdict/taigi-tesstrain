@@ -67,19 +67,6 @@ make_one_lstmf() {
 }
 export -f make_one_lstmf
 
-make_full_lstmf() {
-    # Generate the main thing first for more complete unicharset etc.
-    # This takes at least 24 hours!
-    # We need more than just the trainedmodel files from tessdata.
-    # /usr/share/tessdata works for this.
-    uv run python src/tesstrain --linedata_only \
-        --lang ftg \
-        --langdata_dir data/langdata \
-        --tessdata_dir /usr/share/tessdata \
-        --training_text "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-        --output_dir "$GT_DIR"
-}
-
 make_split_lstmf() {
     echo Generating lstmf files from input text...
     if [ -d "$GT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
