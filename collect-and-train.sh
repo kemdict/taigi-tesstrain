@@ -18,8 +18,8 @@ download_data() {
     make -j4 tesseract-langdata
 
     download_one pojbh.json 'https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/raw/master/pojbh.json'
-    download_one essay-taigi.txt 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/essay-taigi.txt'
-    download_one yataigi-poj.syllables.dict.yaml 'https://github.com/kisaragi-hiu/kisaragi-rime-taigi/raw/main/yataigi-poj.syllables.dict.yaml'
+    download_one essay-taigi.txt 'https://github.com/kemdict/taigi-playground/raw/main/essay-taigi.txt'
+    download_one yataigi-poj.syllables.dict.yaml 'https://github.com/kemdict/taigi-playground/raw/main/yataigi-poj.syllables.dict.yaml'
     mkdir -p data/tessdata/script
     download_one data/tessdata/eng.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata'
     download_one data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
