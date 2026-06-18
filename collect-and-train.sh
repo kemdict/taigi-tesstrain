@@ -29,19 +29,24 @@ make_text() {
     if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         echo Extracting training text...
-        node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
+        node extract.ts --bucket-size 0 "$TRAINING_TEXT_DIR"
         echo Copying syllables...
         cat yataigi-poj.syllables.dict.yaml |
-            sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
+            sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.all.poj
         echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
-        echo Combining POJ and KIP samples...
+        echo Combining POJ and KIP...
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" | while read -r f; do
             cat "$f" "${f%.*}".kip >"${f%.*}".txt
         done
         echo "Deleting intermediate (non-merged) POJ and KIP files..."
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" -delete
         find "$TRAINING_TEXT_DIR" -type f -path "*.kip" -delete
+        # We must do splitting here, after combining the KIP conversion and the
+        # syllables.
+        node splitFile.ts "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+            --outdir "$TRAINING_TEXT_DIR" \
+            --base "ftg.training_text"
     fi
 }
 
@@ -81,7 +86,7 @@ make_split_lstmf() {
         echo "$GT_DIR" and "$OUTPUT_DIR" already present, assuming split lstmf files are already made
         return
     fi
-    # Generate the lstmf files for each segments
+    # Generate the lstmf files for each segment
     if [ ! -d data/ftg-parts ]; then
         # FIXME some of these calls may be failing?
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
