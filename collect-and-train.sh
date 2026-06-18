@@ -103,7 +103,6 @@ make_split_lstmf() {
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
     echo Writing OUTPUT_DIR/all-gt...
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-        "$TRAINING_TEXT_DIR"/ftg.training_text.syllables.txt \
         >"$OUTPUT_DIR"/all-gt
 }
 
