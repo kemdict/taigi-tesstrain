@@ -5,6 +5,9 @@ TRAINING_TEXT_DIR=data/langdata/ftg
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 
+# For shuffling lstmf listing
+RANDOM_SEED=0
+
 download_one() {
     if [ -f "$1" ]; then return; fi
     echo "Downloading $1 from $2..."
@@ -104,6 +107,11 @@ make_split_lstmf() {
     echo Writing OUTPUT_DIR/all-gt...
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         >"$OUTPUT_DIR"/all-gt
+    echo Writing OUTPUT_DIR/all-lstmf...
+    find "$GT_DIR" -path "*.lstmf" \
+        >"$OUTPUT_DIR"/all-lstmf
+    echo Shuffling OUTPUT_DIR/all-lstmf...
+    python shuffle.py "$RANDOM_SEED" "$OUTPUT_DIR"/all-lstmf
 }
 
 merge_our_unicharsets() {
