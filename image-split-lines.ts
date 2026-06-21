@@ -40,5 +40,5 @@ await $$`tesseract ${file} ${path.join(tmpdir.path, "outbase")} ${[
 ]}`;
 await $$`uv run hocr-extract-images ${path.join(tmpdir.path, "outbase.hocr")} ${[
   "--pattern",
-  `${path.basename(file)}-line-%03d.png`,
+  `${path.basename(file, ".png")}-line-%03d.png`,
 ]}`;
