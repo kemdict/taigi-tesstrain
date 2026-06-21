@@ -1,6 +1,10 @@
 {
   "dependencies": {
-    "@kemdict/kesi": "^0.3.1"
+    "@kemdict/kesi": "^0.3.1",
+    "zx": "^8.8.5"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.0.0"
+  }
 }

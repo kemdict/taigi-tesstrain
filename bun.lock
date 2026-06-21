@@ -5,10 +5,20 @@
     "": {
       "dependencies": {
         "@kemdict/kesi": "^0.3.1",
+        "zx": "^8.8.5",
+      },
+      "devDependencies": {
+        "@types/node": "^26.0.0",
       },
     },
   },
   "packages": {
     "@kemdict/kesi": ["@kemdict/kesi@0.3.1", "", { "bin": { "kemdict-kesi": "dist/cli.js" } }, "sha512-9WJZqwmZSHrLUhSri0cyvw+ecykI0ZwJkuAxAI1wbwVYMPl6a9pma8Y+BtfvY0Mp/Nut4Tfvy6JqEquZeid4vA=="],
+
+    "@types/node": ["@types/node@26.0.0", "", { "dependencies": { "undici-types": "~8.3.0" } }, "sha512-vf2YFi1iY9lHGwNJMs01biZFbKJkrZR1T6/MlzjhJLPdntOHLhTrDSnSVcdtvjihi4VQNlrFRIxLsDBlQpAipA=="],
+
+    "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
+
+    "zx": ["zx@8.8.5", "", { "bin": { "zx": "build/cli.js" } }, "sha512-SNgDF5L0gfN7FwVOdEFguY3orU5AkfFZm9B5YSHog/UDHv+lvmd82ZAsOenOkQixigwH2+yyH198AwNdKhj+RA=="],
   }
 }
