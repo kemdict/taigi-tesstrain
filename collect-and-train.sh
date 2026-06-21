@@ -5,6 +5,13 @@ TRAINING_TEXT_DIR=data/langdata/ftg
 GT_DIR=data/ftg-ground-truth
 OUTPUT_DIR=data/ftg
 
+# Split mode.
+# line: each line in the input text gets its own lstmf file
+# article (or anything else): each lstmf file may include articles
+# line mode needs a lot more time to create the lstmf files, and I'm not
+# convinced it's better.
+SPLIT=line
+
 # For shuffling lstmf listing
 RANDOM_SEED=0
 
@@ -31,11 +38,19 @@ download_data() {
 make_text() {
     if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
-        echo Extracting training text...
-        node extract.ts --bucket-size 0 "$TRAINING_TEXT_DIR"
-        echo Copying syllables...
-        cat yataigi-poj.syllables.dict.yaml |
-            sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.all.poj
+        if [ "$SPLIT" == line ]; then
+            echo Extracting training text...
+            node extract.ts --bucket-size 0 "$TRAINING_TEXT_DIR"
+            echo Copying syllables...
+            cat yataigi-poj.syllables.dict.yaml |
+                sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.all.poj
+        else
+            echo Extracting training text...
+            node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
+            echo Copying syllables...
+            cat yataigi-poj.syllables.dict.yaml |
+                sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
+        fi
         echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
         echo Combining POJ and KIP...
@@ -45,11 +60,13 @@ make_text() {
         echo "Deleting intermediate (non-merged) POJ and KIP files..."
         find "$TRAINING_TEXT_DIR" -type f -path "*.poj" -delete
         find "$TRAINING_TEXT_DIR" -type f -path "*.kip" -delete
-        # We must do splitting here, after combining the KIP conversion and the
-        # syllables.
-        node splitFile.ts "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
-            --outdir "$TRAINING_TEXT_DIR" \
-            --base "ftg.training_text"
+        if [ "$SPLIT" == line ]; then
+            # We must do splitting here, after combining the KIP conversion and
+            # the syllables.
+            node splitFile.ts "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+                --outdir "$TRAINING_TEXT_DIR" \
+                --base "ftg.training_text"
+        fi
     fi
 }
 
@@ -67,39 +84,41 @@ make_one_lstmf() {
         --tessdata_dir /usr/share/tessdata \
         --training_text "$f" \
         --output_dir data/ftg-parts/"$short"
-}; export -f make_one_lstmf
+}
+export -f make_one_lstmf
 
 make_one_lstmf_from_gt() {
     local input="$1"
     local noext="$2"
-    PYTHONIOENCODING=utf-8 $(PY_CMD) $(GENERATE_BOX_SCRIPT) -i "$input" -t "$noext".gt.txt > "$noext".box
+    PYTHONIOENCODING=utf-8 $(PY_CMD) $(GENERATE_BOX_SCRIPT) -i "$input" -t "$noext".gt.txt >"$noext".box
     # Page segmentation mode, as defined in the Makefile.
     PSM=13
     tesseract "$1" "$2" --psm "$PSM" lstm.train
-}; export -f make_one_lstmf_from_gt
+}
+export -f make_one_lstmf_from_gt
 
 make_split_lstmf() {
     if [ -n "$(find data/ftg-ground-truth -path "*.lstmf" -print -quit)" ]; then
-        echo There are already lstmf files in "$GT_DIR". Skipping, assuming lstmf files are already made
+        echo "There are already lstmf files in $GT_DIR. Skipping, assuming lstmf files are already made"
         return
     fi
+
     echo "Creating lstmf files from existing gt/image pairs (real image samples)..."
     # We use parallel instead of Make here to get progress report.
     # We also use our own function instead of invoking Make per file because the
     # Makefile is written to always list ALL_FILES and will take a long time.
     find "$GT_DIR" '(' -path "*.png" -or "*.tif" ')' -print0 |
         parallel -0 --eta make_one_lstmf_from_gt '{}' '{.}' || true
+
     echo "Creating lstmf files from input training text (synthesized images)..."
     # Generate the lstmf files for each segment
     if [ ! -d data/ftg-parts ]; then
-        # FIXME some of these calls may be failing?
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
             parallel -0 --eta make_one_lstmf || true
     fi
-    echo Moving generated lstmf files to the right place...
-    set -x
-    # mkdir -p "$GT_DIR"
 
+    echo "Moving generated lstmf files to the right place..."
+    set -x
     # They all have the same basename, so add their directory names onto the
     # final name to avoid overwriting them.
     # And just in case, also use mv -n to not overwrite anything.
@@ -118,16 +137,19 @@ make_split_lstmf() {
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
     find data/ftg-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
-    echo Writing OUTPUT_DIR/all-gt...
+
+    echo "Writing OUTPUT_DIR/all-gt..."
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         >"$OUTPUT_DIR"/all-gt
-    for f in "$(find "$GT_DIR" -path "*.gt.txt")"; do
+    find "$GT_DIR" -path "*.gt.txt" | while read -r f; do
         cat "$f" >>"$OUTPUT_DIR"/all-gt
     done
-    echo Writing OUTPUT_DIR/all-lstmf...
+
+    echo "Writing OUTPUT_DIR/all-lstmf..."
     find "$GT_DIR" -path "*.lstmf" \
         >"$OUTPUT_DIR"/all-lstmf
-    echo Shuffling OUTPUT_DIR/all-lstmf...
+
+    echo "Shuffling OUTPUT_DIR/all-lstmf..."
     python shuffle.py "$RANDOM_SEED" "$OUTPUT_DIR"/all-lstmf
 }
 
