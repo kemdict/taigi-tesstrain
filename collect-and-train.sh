@@ -17,8 +17,19 @@ RANDOM_SEED=0
 
 download_one() {
     if [ -f "$1" ]; then return; fi
-    echo "Downloading $1 from $2..."
-    wget -O "$1" "$2"
+    local cached
+    cached="/tmp/$(echo "$2" | md5sum | cut -d ' ' -f 1)"
+    if [ ! -f "$cached" ]; then
+        echo "Downloading $1 from $2..."
+        wget -O "$cached" "$2"
+    fi
+
+    if [ ! -f "$cached" ]; then
+        echo "Download failed"
+        return 1
+    fi
+
+    cp "$cached" "$1"
 }
 
 download_data() {
