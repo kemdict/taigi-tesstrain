@@ -7,6 +7,12 @@
 /data/ftg/*
 !/data/ftg/ftg.punc
 
+!/data/ftg-ground-truth
+/data/ftg-ground-truth/*
+!/data/ftg-ground-truth/*.gt.txt
+!/data/ftg-ground-truth/*.png
+!/data/ftg-ground-truth/README.md
+
 *.built
 *.BAK
 *~
