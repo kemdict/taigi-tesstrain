@@ -90,10 +90,10 @@ export -f make_one_lstmf
 make_one_lstmf_from_gt() {
     local input="$1"
     local noext="$2"
-    PYTHONIOENCODING=utf-8 "$PY_CMD" "$GENERATE_BOX_SCRIPT" -i "$input" -t "$noext".gt.txt >"$noext".box
+    PYTHONIOENCODING=utf-8 python "$GENERATE_BOX_SCRIPT" -i "$input" -t "$noext".gt.txt >"$noext".box
     # Page segmentation mode, as defined in the Makefile.
     PSM=13
-    tesseract "$1" "$2" --psm "$PSM" lstm.train
+    tesseract "$1" "$2" --psm raw_line lstm.train
 }
 export -f make_one_lstmf_from_gt
 
