@@ -67,15 +67,29 @@ make_one_lstmf() {
         --tessdata_dir /usr/share/tessdata \
         --training_text "$f" \
         --output_dir data/ftg-parts/"$short"
-}
-export -f make_one_lstmf
+}; export -f make_one_lstmf
+
+make_one_lstmf_from_gt() {
+    local input="$1"
+    local noext="$2"
+    PYTHONIOENCODING=utf-8 $(PY_CMD) $(GENERATE_BOX_SCRIPT) -i "$input" -t "$noext".gt.txt > "$noext".box
+    # Page segmentation mode, as defined in the Makefile.
+    PSM=13
+    tesseract "$1" "$2" --psm "$PSM" lstm.train
+}; export -f make_one_lstmf_from_gt
 
 make_split_lstmf() {
-    echo Generating lstmf files from input text...
-    if [ -d "$GT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
-        echo "$GT_DIR" and "$OUTPUT_DIR" already present, assuming split lstmf files are already made
+    if [ -n "$(find data/ftg-ground-truth -path "*.lstmf" -print -quit)" ]; then
+        echo There are already lstmf files in "$GT_DIR". Skipping, assuming lstmf files are already made
         return
     fi
+    echo "Creating lstmf files from existing gt/image pairs (real image samples)..."
+    # We use parallel instead of Make here to get progress report.
+    # We also use our own function instead of invoking Make per file because the
+    # Makefile is written to always list ALL_FILES and will take a long time.
+    find "$GT_DIR" '(' -path "*.png" -or "*.tif" ')' -print0 |
+        parallel -0 --eta make_one_lstmf_from_gt '{}' '{.}' || true
+    echo "Creating lstmf files from input training text (synthesized images)..."
     # Generate the lstmf files for each segment
     if [ ! -d data/ftg-parts ]; then
         # FIXME some of these calls may be failing?
@@ -107,6 +121,9 @@ make_split_lstmf() {
     echo Writing OUTPUT_DIR/all-gt...
     cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
         >"$OUTPUT_DIR"/all-gt
+    for f in "$(find "$GT_DIR" -path "*.gt.txt")"; do
+        cat "$f" >>"$OUTPUT_DIR"/all-gt
+    done
     echo Writing OUTPUT_DIR/all-lstmf...
     find "$GT_DIR" -path "*.lstmf" \
         >"$OUTPUT_DIR"/all-lstmf
