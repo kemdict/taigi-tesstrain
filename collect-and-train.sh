@@ -10,7 +10,7 @@ OUTPUT_DIR=data/ftg
 # article (or anything else): each lstmf file may include articles
 # line mode needs a lot more time to create the lstmf files, and I'm not
 # convinced it's better.
-SPLIT=line
+SPLIT=article
 
 # For shuffling lstmf listing
 RANDOM_SEED=0
