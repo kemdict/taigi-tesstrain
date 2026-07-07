@@ -73,6 +73,7 @@ async function convert(data: Data, basedir: string) {
       buf += `a ${x} ${y} ${x + width} ${y + height}\n`;
       buf += `\t ${x + width} ${y + height} ${x + width + 1} ${y + height + 1}\n`;
     }
+    console.log(`Written ${fNoExt(filename)}.box`);
     await writeFile(fNoExt(filename) + ".box", buf);
   }
 }
