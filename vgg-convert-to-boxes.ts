@@ -1,6 +1,8 @@
 import { $ } from "zx";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
+import { parseArgs } from "node:util";
 
 /** Return the width and height of `file`. */
 async function dims(file: string) {
@@ -70,3 +72,40 @@ async function convert(data: Data, basedir: string) {
     await writeFile(path.join(basedir, fNoExt(filename) + ".box"), buf);
   }
 }
+
+function err(msg: string): never {
+  console.log(msg);
+  process.exit(1);
+}
+
+const parsedArgs = parseArgs({
+  args: process.argv.slice(2),
+  allowPositionals: true,
+  options: {
+    help: { type: "boolean", short: "h" },
+  },
+});
+
+if (parsedArgs.values.help) {
+  console.log(`vgg-convert-to-boxes.ts json basedir
+Convert \`json\` exported from VGG Image Annotator into box files in \`basedir\`.
+
+Options:
+  -h, --help: show help (this string)`);
+  process.exit(0);
+}
+if (parsedArgs.positionals.length !== 2) {
+  err("Please specify exactly two arguments");
+}
+const [exported, basedir] = parsedArgs.positionals;
+if (!existsSync(exported)) {
+  err("The data file specified does not exist");
+}
+if (!existsSync(basedir)) {
+  err("The base directory for output box files does not exist");
+}
+
+await convert(
+  JSON.parse(await readFile(exported, { encoding: "utf-8" })),
+  basedir,
+);
