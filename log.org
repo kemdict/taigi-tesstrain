@@ -170,3 +170,61 @@ I see an error about not finding some stuff from Latin during generate?
 mkdir -p data/tessdata/script
 wget -O data/tessdata/script/Latin.traineddata 'https://github.com/tesseract-ocr/tessdata_best/raw/main/script/Latin.traineddata'
 #+end_src
+* try using pytesstrain's =create_ground_truth= to split source text (per line) & create .gt.txt + .tif pairs
+/2026-07-08T03:12:13+0900: This became 0.1.4. I gave up on it./
+  The code is done (hopefully without mistake). Then it's a retrain (git clean + clean =/tmp= for disk space + run the file)
+** 2026-06-18T14:25:00+09:00 current result
+: At iteration 9875/10000/14218, mean rms=2.305%, delta=32.492%, BCER train=94.463%, BWER train=99.981%, skip ratio=43.200%, New best BCER = 94.463 wrote checkpoint.
+: Finished! Selected model with minimal training error rate (BCER) = 94.463
+But the resulting model is not usable. Using it on a screenshot just produces basically the same thing as the English model
+** 2026-06-18T03:05:47+0900 maybe we should split the text ourselves then run src/tesstrain.
+
+    Currently, we use pytesstrain's =create_ground_truth= to generate the .gt.txt and tif files, then we run =generate_line_box.py= to generate box files from the tif, then we run ~tesseract ... lstm.train~ for each file to get the lstmf file. (This is how the tesstrain Makefile does it.)
+    A bunch of errors in the form of
+    : Failed to read boxes from data/ftg-ground-truth/ftg.training_text.all.090672.Liberation_Serif.exp0.tif
+    : Error during processing.
+    show up in this method.
+
+    +If we use src/tesstrain instead, it uses text2image which generates box files together with the image files.+ Wait. pytesstrain also calls text2image. I think I'm overwriting the box files that are already there after =create_ground_truth=. +Fuck. I think we need to regenerate the files (again).+
+
+    ...I'm not sure. In the =make_one_box= function we already return if the file exists. So the box file generation only happens if it wasn't there before.
+
+    Either way. We should try this next. Using =src/tesstrain= has some benefits: we can specify font names that need commas in them (some variants are like this in Pango, like =Roboto Condensed, Condensed= instead of just =Roboto Condensed=); we can specify font list in the language_specific.py file. (If we add real samples (as =png/gt.txt= pairs they will be processed by the Makefile.)
+
+    The core splitting logic in =create_ground_truth= is just this:
+
+    #+begin_src python
+    for line_number, line in enumerate(RE_LINE_ENDING.split(source.read_text(encoding='utf8')), 1):
+        tidy_line = line.rstrip()
+        if not tidy_line:  # Get rid of empty lines
+            continue
+    #+end_src
+* 2026-07-08T03:30:40+0900 annotation of lines
+I want a quick tool to annotate lines without having to open a file in Krita → crop → write → undo → crop → write → undo, etc.. That is extremely slow.
+
+I've found the ideal-ish tool to do this, the [[https://gitlab.com/vgg/via-suite/via][VGG image annotator]]. ([[https://www.robots.ox.ac.uk/~vgg/software/via/via.html][Image annotator]]) The output still needs to be converted though, ideally directly to box files similar to those from =text2image=.
+
+char x y x y 0
+if char is tab, it represents a newline (make the box 1x1)
+
+generate_line_box.py does this:
+chat 0 0 line-width line-height 0
+
+Do box files /need/ to contain the characters? We are simply specifying textlines here, right?
+input is configs/lstm.train; probably the parameter =tessedit_train_line_recognizer=
+“Break input into lines and remap boxes if present”
+[[https://github.com/tesseract-ocr/tesseract/blob/245ad55147fe8fc408a134873fd723857c6741b8/src/api/baseapi.cpp#L793][maps to TrainLineRecognizer function]]
+#+begin_src c++
+// Generates training data for training a line recognizer, eg LSTM.
+// Breaks the page into lines, according to the boxes, and writes them to a
+// serialized DocumentData based on output_basename.
+// Return true if successful, false if an error occurred.
+bool Tesseract::TrainLineRecognizer(const char *input_imagename, const std::string &output_basename, BLOCK_LIST *block_list)
+#+end_src
+ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr, nullptr)
+  This should succeed as long as our file format is right.
+TrainFromBoxes(boxes, texts, block_list, &images)
+  This should just figure out bounding boxes of lines (using tab to separate lines) then split the image according to them.
+I don't think we need to worry about the text.
+
+(0, 0 is bottom left for Tesseract.)
