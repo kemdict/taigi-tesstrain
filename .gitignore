@@ -11,6 +11,10 @@
 /data/ftg-ground-truth/*
 !/data/ftg-ground-truth/*.gt.txt
 !/data/ftg-ground-truth/*.png
+!/data/ftg-ground-truth/manual-*.box
+!/data/ftg-ground-truth/manual-*.JPG
+# VGG Image Annotator exported JSON files, in case we change how we output boxes
+!/data/ftg-ground-truth/*.via.json
 !/data/ftg-ground-truth/README.md
 
 *.built
