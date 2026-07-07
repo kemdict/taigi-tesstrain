@@ -63,14 +63,21 @@ async function convert(data: Data, basedir: string) {
       console.log(`Unable to read ${filename}, skipping...`);
       continue;
     }
+    const gt = (
+      await readFile(`${fNoExt(filename)}.gt.txt`, { encoding: "utf-8" })
+    ).split("\n");
     let buf = "";
-    for (const region of obj.regions) {
+    for (let i = 0; i < obj.regions.length; i++) {
+      const region = obj.regions[i];
+      const line = gt[i];
       if (region.shape_attributes.name !== "rect") continue;
       const { x, width, height } = region.shape_attributes;
       // y value from the annotator output has 0 = top, whereas tesseract boxes
       // have 0 = bottom
       const y = fileHeight - region.shape_attributes.y;
-      buf += `a ${x} ${y} ${x + width} ${y + height}\n`;
+      for (const char of [...line]) {
+        buf += `${char} ${x} ${y} ${x + width} ${y + height}\n`;
+      }
       buf += `\t ${x + width} ${y + height} ${x + width + 1} ${y + height + 1}\n`;
     }
     console.log(`Written ${fNoExt(filename)}.box`);
