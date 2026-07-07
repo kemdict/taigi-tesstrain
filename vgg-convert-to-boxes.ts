@@ -52,13 +52,17 @@ function fNoExt(filename: string) {
 
 /**
  * Convert VGG exported `data` into boxes.
- * Assumes all files are located within `basedir`.
+ * This needs to be able to read the image files. They are assumed to be in
+ * `basedir`.
  */
 async function convert(data: Data, basedir: string) {
   for (const [_, obj] of Object.entries(data)) {
-    const filename = obj.filename;
+    const filename = path.join(basedir, obj.filename);
     const fileHeight = (await dims(filename))?.height;
-    if (!fileHeight) continue;
+    if (!fileHeight) {
+      console.log(`Unable to read ${filename}, skipping...`);
+      continue;
+    }
     let buf = "";
     for (const region of obj.regions) {
       if (region.shape_attributes.name !== "rect") continue;
@@ -69,7 +73,7 @@ async function convert(data: Data, basedir: string) {
       buf += `a ${x} ${y} ${x + width} ${y + height}\n`;
       buf += `\t ${x + width} ${y + height} ${x + width + 1} ${y + height + 1}\n`;
     }
-    await writeFile(path.join(basedir, fNoExt(filename) + ".box"), buf);
+    await writeFile(fNoExt(filename) + ".box", buf);
   }
 }
 
