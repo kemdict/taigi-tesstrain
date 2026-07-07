@@ -16,7 +16,7 @@ download_one() {
 
 download_one data/ftg-best.traineddata "https://github.com/kemdict/taigi-tesstrain/releases/download/v0.1.4/ftg-best.traineddata"
 
-find "data/ftg-ground-truth/" '(' -path "*.png" -or -path "*.tif" ')' | while read -r f; do
+find "data/ftg-ground-truth/" '(' -path "*.png" -or -path "*.tif" -or -path "*.JPG" ')' | while read -r f; do
     if [ -f "${f%.*}".gt.txt ]; then
         continue
     fi

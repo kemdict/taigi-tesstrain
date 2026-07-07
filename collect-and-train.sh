@@ -118,7 +118,7 @@ make_split_lstmf() {
     # We use parallel instead of Make here to get progress report.
     # We also use our own function instead of invoking Make per file because the
     # Makefile is written to always list ALL_FILES and will take a long time.
-    find "$GT_DIR" '(' -path "*.png" -or -path "*.tif" ')' -print0 |
+    find "$GT_DIR" '(' -path "*.png" -or -path "*.tif" -or -path "*.JPG" ')' -print0 |
         parallel -0 --eta make_one_lstmf_from_gt '{}' '{.}' || true
 
     echo "Creating lstmf files from input training text (synthesized images)..."
