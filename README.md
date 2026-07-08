@@ -59,8 +59,8 @@ There are two kinds of input training text/images:
 - Images synthesized with `text2image` from an corpus of input text. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh), from its `pojbh.json` file.
 - Pairs of real scans and manually edited ground truth texts. These are added to the repository in data/ftg-ground-truth.
   - Some of these scans are single-line image + ground truth text pairs. An lstmf file would be generated from these files and go into training.
-    The ground truth texts are usually first created by using `populate-initial-gt.sh` to recognize the images with a previous model, then manually edited. I might also manually type in the whole thing.
-  - Some of these scans are multi-line image + multi-line box files + ground truth texts. These images are annotated in VGG Image Annotator, then exported to JSON. The JSON files are then, combining with the ground truth texts, converted into box files with `vgg-convert-to-boxes.ts`.
+    The ground truth texts are usually first created by using `utils.ts populate-initial-gt` to recognize the images with a previous model, then manually edited. I might also manually type in the whole thing.
+  - Some of these scans are multi-line image + multi-line box files + ground truth texts. These images are annotated in VGG Image Annotator, then exported to JSON. The JSON files are then, combining with the ground truth texts, converted into box files with `utils.ts vgg-convert-to-boxes`.
 
 ### Training
 
@@ -87,11 +87,10 @@ Random maybe-useful scripts:
 - `generate_gt_from_box.py`: Extract the text from a box file. Not used for taigi-tesstrain's workflows.
 - `normalize.py`: Unicode-normalize a text file. Unused but seems useful to keep around.
 
-For various workflows:
-
-- `image-split-lines.ts`: Use tesseract's line detection to split an image into multiple images, each representing one line.
-- `populate-initial-gt.sh`: Take image files that do not have ground truth text, and use tesseract (and an existing model) to recognize its text, so we can use a less perfect model to assist with manual recognition.
-- `vgg-convert-to-boxes.ts`: Convert annotations in JSON files exported from VGG Image Annotator into box files.
+Some tools are `utils.ts` subcommands:
+- `utils.ts image-split-lines`: Use tesseract's line detection to split an image into multiple images, each representing one line.
+- `utils.ts populate-initial-gt`: Take image files that do not have ground truth text, and use tesseract (and an existing model) to recognize its text, so we can use a less perfect model to assist with manual recognition.
+- `utils.ts vgg-convert-to-boxes`: Convert annotations in JSON files exported from VGG Image Annotator into box files.
 
 ## Changelog
 

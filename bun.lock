@@ -4,7 +4,9 @@
   "workspaces": {
     "": {
       "dependencies": {
+        "@commander-js/extra-typings": "^15.0.0",
         "@kemdict/kesi": "^0.3.1",
+        "commander": "^15.0.0",
         "zx": "^8.8.5",
       },
       "devDependencies": {
@@ -13,9 +15,13 @@
     },
   },
   "packages": {
+    "@commander-js/extra-typings": ["@commander-js/extra-typings@15.0.0", "", { "peerDependencies": { "commander": "~15.0.0" } }, "sha512-yeJlba62xqmkgELUsn7356MEnzLLu/fw2x4lofFqGnXh6YysRdEs2BaLeLtg1+KU0AXvMeqQvTTp+3hBEBK+EA=="],
+
     "@kemdict/kesi": ["@kemdict/kesi@0.3.1", "", { "bin": { "kemdict-kesi": "dist/cli.js" } }, "sha512-9WJZqwmZSHrLUhSri0cyvw+ecykI0ZwJkuAxAI1wbwVYMPl6a9pma8Y+BtfvY0Mp/Nut4Tfvy6JqEquZeid4vA=="],
 
     "@types/node": ["@types/node@26.0.0", "", { "dependencies": { "undici-types": "~8.3.0" } }, "sha512-vf2YFi1iY9lHGwNJMs01biZFbKJkrZR1T6/MlzjhJLPdntOHLhTrDSnSVcdtvjihi4VQNlrFRIxLsDBlQpAipA=="],
+
+    "commander": ["commander@15.0.0", "", {}, "sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg=="],
 
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
 
