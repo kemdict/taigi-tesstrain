@@ -48,19 +48,47 @@ I'm training on these fonts currently, which need to be installed in /usr/share/
 'Charis', 'Dejavu Serif Italic', 'Dejavu Serif', 'Iosevka', 'Liberation Serif', 'Noto Sans', 'Noto Sans CJK TC', 'Noto Serif', 'Roboto Condensed, Condensed',
 ```
 
-### Data
+### Input data
 
-`extract.ts` takes Taigi text from the corpus and assembles them in the right place. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh). You will have to download [`pojbh.json`](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh/blob/master/pojbh.json) to `./pojbh.json` first. (This is now automatically done in `collect-and-train.sh`.)
+None of the data here needs to be downloaded manually, I try to make sure (apart from installing packages) the only thing that needs to be run is `collect-and-train.sh`.
 
-I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kisaragi-hiu/kisaragi-rime-taigi), which still needs documentation. (The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.) (These are also downloaded automatically in `collect-and-train.sh`.)
+I grab a list of valid POJ / TL syllables and the wordlist from [another project of mine](https://github.com/kemdict/taigi-playground). The syllables list ultimately comes from the definition of POJ/TL which I copied from Wikipedia; and the wordlist is from a bunch of dictionaries aggregated in Kemdict then ordered by frequency by checking with a private corpus as well as `pojbh.json`.
 
-Tesseract also wants some language / script data to be present. Download langdata (which includes unicharset files for different scripts) with `make tesseract-langdata`. (This is also now done in `collect-and-train.sh`.
+There are two kinds of input training text/images:
 
-The “best” (float, not quantized to int) traineddata for Latin (script) and English (language) are also needed, as these are the base models that I'm using. This is now downloaded automatically in `collect-and-train.sh`.
+- Images synthesized with `text2image` from an corpus of input text. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh), from its `pojbh.json` file.
+- Pairs of real scans and manually edited ground truth texts. These are added to the repository in data/ftg-ground-truth.
 
 ### Training
 
 Finally run `bash collect-and-train.sh`. If I did not screw up this should finish with a usable model at `data/ftg.trainedmodel` after about 2 hours.
+
+## Helper scripts
+
+This is my attempt to document the scripts in here, both inherited from upstream tesstrain and also our own.
+
+Automated:
+
+- Makefile: upstream tesstrain's entry point that collect-and-train.sh calls into.
+  - generate_eval_train.py: Take the intermediary all-lstmf listing file and split it into a training set and an eval set.
+  - generate_line_box.py: Generate a box file from an image and its ground truth text. The image (and the text file) can only contain one text line.
+  - generate_wordstr_box.py: Box file generation from image + ground truth text, used for Indic and RTL scripts (kept here because I don't want to modify the Makefile).
+  - plot_cer.py, plot_log.py: Used for plotting training performance
+  - shuffle.py: Shuffle lines in an input text file. Used to shuffle which lstmf files go into the training set and which go into the eval set.
+- collect-and-train.sh: Main entry point for training.
+  - extract.ts: Extract synthesis ground truth from pojbh.json
+  - splitFile.ts: Split lines of a text file into their own files. Used for the line-based splitting method. Will be removed since that method does not help.
+
+Random maybe-useful scripts:
+
+- generate_gt_from_box.py: Extract the text from a box file. Not used for taigi-tesstrain's workflows.
+- normalize.py: Unicode-normalize a text file. Unused but seems useful to keep around.
+
+For various workflows:
+
+- image-split-lines.ts: Use tesseract's line detection to split an image into multiple images, each representing one line.
+- populate-initial-gt.sh: Take image files that do not have ground truth text, and use tesseract (and an existing model) to recognize its text, so we can use a less perfect model to assist with manual recognition.
+- vgg-convert-to-boxes.ts: Convert annotations in JSON files exported from VGG Image Annotator into box files.
 
 ## Changelog
 
