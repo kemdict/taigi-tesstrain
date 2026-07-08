@@ -58,6 +58,9 @@ There are two kinds of input training text/images:
 
 - Images synthesized with `text2image` from an corpus of input text. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh), from its `pojbh.json` file.
 - Pairs of real scans and manually edited ground truth texts. These are added to the repository in data/ftg-ground-truth.
+  - Some of these scans are single-line image + ground truth text pairs. An lstmf file would be generated from these files and go into training.
+    The ground truth texts are usually first created by using `populate-initial-gt.sh` to recognize the images with a previous model, then manually edited. I might also manually type in the whole thing.
+  - Some of these scans are multi-line image + multi-line box files + ground truth texts. These images are annotated in VGG Image Annotator, then exported to JSON. The JSON files are then, combining with the ground truth texts, converted into box files with `vgg-convert-to-boxes.ts`.
 
 ### Training
 
@@ -70,25 +73,25 @@ This is my attempt to document the scripts in here, both inherited from upstream
 Automated:
 
 - Makefile: upstream tesstrain's entry point that collect-and-train.sh calls into.
-  - generate_eval_train.py: Take the intermediary all-lstmf listing file and split it into a training set and an eval set.
-  - generate_line_box.py: Generate a box file from an image and its ground truth text. The image (and the text file) can only contain one text line.
-  - generate_wordstr_box.py: Box file generation from image + ground truth text, used for Indic and RTL scripts (kept here because I don't want to modify the Makefile).
-  - plot_cer.py, plot_log.py: Used for plotting training performance
-  - shuffle.py: Shuffle lines in an input text file. Used to shuffle which lstmf files go into the training set and which go into the eval set.
-- collect-and-train.sh: Main entry point for training.
-  - extract.ts: Extract synthesis ground truth from pojbh.json
-  - splitFile.ts: Split lines of a text file into their own files. Used for the line-based splitting method. Will be removed since that method does not help.
+  - `generate_eval_train.py`: Take the intermediary all-lstmf listing file and split it into a training set and an eval set.
+  - `generate_line_box.py`: Generate a box file from an image and its ground truth text. The image (and the text file) can only contain one text line.
+  - `generate_wordstr_box.py`: Box file generation from image + ground truth text, used for Indic and RTL scripts (kept here because I don't want to modify the Makefile).
+  - `plot_cer.py, plot_log.py`: Used for plotting training performance
+  - `shuffle.py`: Shuffle lines in an input text file. Used to shuffle which lstmf files go into the training set and which go into the eval set.
+- `collect-and-train.sh`: Main entry point for training.
+  - `extract.ts`: Extract synthesis ground truth from pojbh.json
+  - `splitFile.ts`: Split lines of a text file into their own files. Used for the line-based splitting method. Will be removed since that method does not help.
 
 Random maybe-useful scripts:
 
-- generate_gt_from_box.py: Extract the text from a box file. Not used for taigi-tesstrain's workflows.
-- normalize.py: Unicode-normalize a text file. Unused but seems useful to keep around.
+- `generate_gt_from_box.py`: Extract the text from a box file. Not used for taigi-tesstrain's workflows.
+- `normalize.py`: Unicode-normalize a text file. Unused but seems useful to keep around.
 
 For various workflows:
 
-- image-split-lines.ts: Use tesseract's line detection to split an image into multiple images, each representing one line.
-- populate-initial-gt.sh: Take image files that do not have ground truth text, and use tesseract (and an existing model) to recognize its text, so we can use a less perfect model to assist with manual recognition.
-- vgg-convert-to-boxes.ts: Convert annotations in JSON files exported from VGG Image Annotator into box files.
+- `image-split-lines.ts`: Use tesseract's line detection to split an image into multiple images, each representing one line.
+- `populate-initial-gt.sh`: Take image files that do not have ground truth text, and use tesseract (and an existing model) to recognize its text, so we can use a less perfect model to assist with manual recognition.
+- `vgg-convert-to-boxes.ts`: Convert annotations in JSON files exported from VGG Image Annotator into box files.
 
 ## Changelog
 
