@@ -178,8 +178,10 @@ program
       .split("\n")
       .filter(Boolean);
     for (const file of files) {
-      const box = `${fNoExt(file)}.box`;
-      if (existsSync(box)) continue;
+      // We can just update them multiple times, I think it's fine and we don't
+      // need to skip existing ones.
+      // const box = `${fNoExt(fNoExt(file))}.box`;
+      // if (existsSync(box)) continue;
       await convertVggToBoxes(
         JSON.parse(await readFile(file, { encoding: "utf-8" })),
         path.dirname(file),
