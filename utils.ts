@@ -60,7 +60,7 @@ async function populateInitialGt() {
 
   const groundTruthDir = "data/ftg-ground-truth/";
   const images = (
-    await $$`find ${groundTruthDir} ${
+    await $`find ${groundTruthDir} ${
       // prettier-ignore
       [
       "(",
