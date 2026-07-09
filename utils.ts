@@ -142,7 +142,7 @@ async function convertVggToBoxes(data: VggData, basedir: string) {
       for (const char of [...line]) {
         buf += `${char} ${x} ${y} ${x + width} ${y + height}\n`;
       }
-      buf += `\t ${x + width} ${y + height} ${x + width + 1} ${y + height + 1}\n`;
+      buf += `\t ${x + width} ${y + height - 1} ${x + width + 1} ${y + height}\n`;
     }
     console.log(`Written ${fNoExt(filename)}.box`);
     await writeFile(fNoExt(filename) + ".box", buf);
