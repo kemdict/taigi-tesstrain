@@ -186,4 +186,11 @@ program
     );
   });
 
+program
+  .command("clean")
+  .description("Clean up the workspace (but keep downloaded stuff around)")
+  .action(async () => {
+    await $$`git clean -xdf ${["data/ftg-ground-truth", "data/ftg", "data/langdata/ftg"]}`;
+  });
+
 await program.parseAsync();
