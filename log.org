@@ -228,3 +228,14 @@ TrainFromBoxes(boxes, texts, block_list, &images)
 I don't think we need to worry about the text.
 
 (0, 0 is bottom left for Tesseract.)
+* 2026-07-10T03:16:57+0900
+
+Actually the recognition of some pages is already quite good apart from quantifiable misidentifications.
+
+- 8th tone on i
+- h/b
+- c/e
+- a/n (should almost always be a)
+- 8th tone on à (duplicate tones)
+- m̄ frequently becomes mī̄
+- ⁿ sometimes becomes "
