@@ -6,6 +6,7 @@ import path from "node:path";
 import { $ } from "zx";
 
 const $$ = $({ verbose: true });
+const groundTruthDir = "data/ftg-ground-truth/";
 
 function err(msg: string): never {
   console.log(msg);
@@ -58,7 +59,6 @@ async function populateInitialGt() {
     "https://github.com/kemdict/taigi-tesstrain/releases/download/v0.1.5/ftg-best.traineddata",
   );
 
-  const groundTruthDir = "data/ftg-ground-truth/";
   const images = (
     await $`find ${groundTruthDir} ${
       // prettier-ignore
@@ -171,19 +171,20 @@ program
   .description(
     "Convert JSON exported from VGG Image Annotator into box files in basedir.",
   )
-  .argument("<json>", "VGG Image Annotator JSON export")
-  .argument(
-    "<basedir>",
-    "directory containing the image and ground truth files",
-  )
-  .action(async (exported: string, basedir: string) => {
-    if (!existsSync(exported)) err("The data file specified does not exist");
-    if (!existsSync(basedir))
-      err("The base directory for output box files does not exist");
-    await convertVggToBoxes(
-      JSON.parse(await readFile(exported, { encoding: "utf-8" })),
-      basedir,
-    );
+  .action(async () => {
+    const files = (
+      await $`find ${groundTruthDir} ${["-path", "*.via.json"]}`
+    ).stdout
+      .split("\n")
+      .filter(Boolean);
+    for (const file of files) {
+      const box = `${fNoExt(file)}.box`;
+      if (existsSync(box)) continue;
+      await convertVggToBoxes(
+        JSON.parse(await readFile(file, { encoding: "utf-8" })),
+        path.dirname(file),
+      );
+    }
   });
 
 program
