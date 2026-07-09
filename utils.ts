@@ -55,7 +55,7 @@ async function downloadOne(path: string, url: string) {
 async function populateInitialGt() {
   downloadOne(
     "data/ftg-best.traineddata",
-    "https://github.com/kemdict/taigi-tesstrain/releases/download/v0.1.4/ftg-best.traineddata",
+    "https://github.com/kemdict/taigi-tesstrain/releases/download/v0.1.5/ftg-best.traineddata",
   );
 
   const groundTruthDir = "data/ftg-ground-truth/";
