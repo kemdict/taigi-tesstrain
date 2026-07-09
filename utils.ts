@@ -85,17 +85,17 @@ async function populateInitialGt() {
 
 interface VggData {
   [name: string]: {
-    filename: string;
-    size: number;
+    filename: string,
+    size: number,
     regions: Array<{
       shape_attributes: {
-        name: string;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-      };
-    }>;
+        name: string,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+      },
+    }>,
   };
 }
 
