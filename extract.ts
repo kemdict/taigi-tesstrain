@@ -82,11 +82,11 @@ for (let i = 0; i < articles.length; i++) {
 if (bucketSize > 0) {
   for (let i = 0; i < buckets.length; i++) {
     const bucket = buckets[i];
-    fs.writeFileSync(`${dir}/ftg.training_text.${i}.poj`, bucket.join("\n"));
+    fs.writeFileSync(`${dir}/nan_tw.training_text.${i}.poj`, bucket.join("\n"));
   }
 }
 
 fs.writeFileSync(
-  `${dir}/ftg.training_text.all.poj`,
+  `${dir}/nan_tw.training_text.all.poj`,
   buckets.map((bucket) => bucket.join("\n")).join("\n"),
 );

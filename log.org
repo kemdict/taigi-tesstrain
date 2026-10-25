@@ -22,6 +22,8 @@ make tesseract-langdata
 
 I will use =ftg= as the model name. This is currently a bit premature but we can always just rename it to =nan= if that is necessary.
 
+/2026-10-25T21:36:53+0900: renaming t9 =nan_tw= now/
+
 * data/MODEL-ground-truth
 
 #+begin_src shell

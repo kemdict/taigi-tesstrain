@@ -2,20 +2,20 @@
 
 An attempt to make a Tesseract model for [Taiwanese Taigi](https://en.wikipedia.org/wiki/Taiwanese_Hokkien) in Latin script (both POJ and TL).
 
-The language code chosen is [`ftg`](https://iso639-3.sil.org/request/2021-044); this is a bit premature, but if that request is rejected then renaming to `nan` is trivial too.
+The language code chosen is `nan_tw` due to the rejection / partial adoption of [ISO 639-3 CR 2021-044](https://iso639-3.sil.org/request/2021-044).
 
-This training uses synthetic images, fine tuned on top of the English model.
+This training uses synthetic images, fine tuned on top of the scripts/Latin model.
 
 ## Using the trained model
 
-Pick ftg-best.traineddata or ftg-fast.traineddata, then download it into a folder and rename it as `ftg.traineddata`.
+Pick nan_tw-best.traineddata or nan_tw-fast.traineddata, then download it into a folder and rename it as `nan_tw.traineddata`.
 
 ("best" is like [tessdata_best](https://github.com/tesseract-ocr/tessdata_best): float models that can used for finetuning; "fast" is like [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast): int models that are also made smaller.)
 
 Then, if the folder you put it into is called `my-tessdata`, run:
 
 ```sh
-tesseract --tessdata-dir "my-tessdata" -l ftg input-image.png output-basename
+tesseract --tessdata-dir "my-tessdata" -l nan_tw input-image.png output-basename
 ```
 
 ## Future work
@@ -57,14 +57,14 @@ I grab a list of valid POJ / TL syllables and the wordlist from [another project
 There are two kinds of input training text/images:
 
 - Images synthesized with `text2image` from an corpus of input text. The corpus is currently taken from [the 台灣白話字文獻館 mirror](https://github.com/Taiwanese-Corpus/Khin-hoan_2010_pojbh), from its `pojbh.json` file.
-- Pairs of real scans and manually edited ground truth texts. These are added to the repository in data/ftg-ground-truth.
+- Pairs of real scans and manually edited ground truth texts. These are added to the repository in data/nan_tw-ground-truth.
   - Some of these scans are single-line image + ground truth text pairs. An lstmf file would be generated from these files and go into training.
     The ground truth texts are usually first created by using `utils.ts populate-initial-gt` to recognize the images with a previous model, then manually edited. I might also manually type in the whole thing.
   - Some of these scans are multi-line image + multi-line box files + ground truth texts. These images are annotated in VGG Image Annotator, then exported to JSON. The JSON files are then, combining with the ground truth texts, converted into box files with `utils.ts vgg-convert-to-boxes`.
 
 ### Training
 
-Finally run `bash collect-and-train.sh`. If I did not screw up this should finish with a usable model at `data/ftg.trainedmodel` after about 2 hours.
+Finally run `bash collect-and-train.sh`. If I did not screw up this should finish with a usable model at `data/nan_tw.trainedmodel` after about 2 hours.
 
 ## Helper scripts
 

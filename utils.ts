@@ -6,7 +6,7 @@ import path from "node:path";
 import { $ } from "zx";
 
 const $$ = $({ verbose: true });
-const groundTruthDir = "data/ftg-ground-truth/";
+const groundTruthDir = "data/nan_tw-ground-truth/";
 
 function err(msg: string): never {
   console.log(msg);
@@ -55,7 +55,7 @@ async function downloadOne(path: string, url: string) {
 
 async function populateInitialGt() {
   downloadOne(
-    "data/ftg-best.traineddata",
+    "data/nan_tw-best.traineddata",
     "https://github.com/kemdict/taigi-tesstrain/releases/download/v0.1.5/ftg-best.traineddata",
   );
 
@@ -79,7 +79,7 @@ async function populateInitialGt() {
     const gtFile = `${noExt}.gt.txt`;
     if (existsSync(gtFile)) continue;
     console.log(`Creating ${gtFile}...`);
-    await $$`tesseract --tessdata-dir data -l ftg-best ${file} ${noExt}.gt`;
+    await $$`tesseract --tessdata-dir data -l nan_tw-best ${file} ${noExt}.gt`;
   }
 }
 
@@ -193,7 +193,7 @@ program
   .command("clean")
   .description("Clean up the workspace (but keep downloaded stuff around)")
   .action(async () => {
-    await $$`git clean -xdf ${["data/ftg-ground-truth", "data/ftg", "data/langdata/ftg"]}`;
+    await $$`git clean -xdf ${["data/nan_tw-ground-truth", "data/nan_tw", "data/langdata/nan_tw"]}`;
   });
 
 await program.parseAsync();

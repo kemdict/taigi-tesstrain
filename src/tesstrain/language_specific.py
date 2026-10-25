@@ -24,10 +24,10 @@ log = logging.getLogger(__name__)
 VALID_LANGUAGE_CODES = (
     'afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat '
     'ceb ces chi_sim chi_tra chr cym cyr_lid dan deu deu_latf div '
-    'dzo ell eng enm epo est eus fas fil fin fra  frm ftg gle glg '
+    'dzo ell eng enm epo est eus fas fil fin fra frm gle glg '
     'grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old '
     'jav jav_java jpn kan kat kat_old kaz khm kir kmr kor kur_ara lao lat '
-    'lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori '
+    'lat_lid lav lit mal mar mkd mlt msa mya nan_tw nep nld nor ori '
     'pan pol por pus ron rus san sin slk slv snd spa spa_old '
     'sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur '
     'uig ukr urd uzb uzb_cyrl vie yid gle_uncial '
@@ -984,7 +984,7 @@ def set_lang_specific_parameters(ctx, lang):
         WORD_DAWG_SIZE = 1_000_000
     elif lang == 'pol':
         WORD_DAWG_SIZE = 1_000_000
-    elif lang == 'ftg':
+    elif lang == 'nan_tw':
         TRAINING_DATA_ARGUMENTS += ['--infrequent_ratio=10000']
         if not FONTS:
             FONTS = TAIGI_FONTS

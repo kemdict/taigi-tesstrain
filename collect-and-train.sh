@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TRAINING_TEXT_DIR=data/langdata/ftg
-GT_DIR=data/ftg-ground-truth
-OUTPUT_DIR=data/ftg
+TRAINING_TEXT_DIR=data/langdata/nan_tw
+GT_DIR=data/nan_tw-ground-truth
+OUTPUT_DIR=data/nan_tw
 
 # Split mode.
 # line: each line in the input text gets its own lstmf file
@@ -47,20 +47,20 @@ download_data() {
 }
 
 make_text() {
-    if [ ! -f "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt ]; then
+    if [ ! -f "$TRAINING_TEXT_DIR"/nan_tw.training_text.all.txt ]; then
         mkdir -p "$TRAINING_TEXT_DIR"
         if [ "$SPLIT" == line ]; then
             echo Extracting training text...
             node extract.ts --bucket-size 0 "$TRAINING_TEXT_DIR"
             echo Copying syllables...
             cat yataigi-poj.syllables.dict.yaml |
-                sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/ftg.training_text.all.poj
+                sed '/[:\.#-]/d;s/\t.*//' >>"$TRAINING_TEXT_DIR"/nan_tw.training_text.all.poj
         else
             echo Extracting training text...
             node extract.ts --bucket-size 10 "$TRAINING_TEXT_DIR"
             echo Copying syllables...
             cat yataigi-poj.syllables.dict.yaml |
-                sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/ftg.training_text.syllables.poj
+                sed '/[:\.#-]/d;s/\t.*//' >"$TRAINING_TEXT_DIR"/nan_tw.training_text.syllables.poj
         fi
         echo Converting POJ to KIP...
         parallel bunx @kemdict/kesi --to kip --input "{}" --output "{.}".kip ::: "$TRAINING_TEXT_DIR"/*.poj
@@ -74,9 +74,9 @@ make_text() {
         if [ "$SPLIT" == line ]; then
             # We must do splitting here, after combining the KIP conversion and
             # the syllables.
-            node splitFile.ts "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+            node splitFile.ts "$TRAINING_TEXT_DIR"/nan_tw.training_text.all.txt \
                 --outdir "$TRAINING_TEXT_DIR" \
-                --base "ftg.training_text"
+                --base "nan_tw.training_text"
         fi
     fi
 }
@@ -85,16 +85,16 @@ make_one_lstmf() {
     local f="$1"
     local short
     short="$(basename "$f" .txt | sed s/training_text.//)"
-    if [ "$short" == ftg.all ]; then
+    if [ "$short" == nan_tw.all ]; then
         return
     fi
-    mkdir -p data/ftg-parts/
+    mkdir -p data/nan_tw-parts/
     uv run python src/tesstrain --linedata_only \
-        --lang ftg \
+        --lang nan_tw \
         --langdata_dir data/langdata \
         --tessdata_dir /usr/share/tessdata \
         --training_text "$f" \
-        --output_dir data/ftg-parts/"$short"
+        --output_dir data/nan_tw-parts/"$short"
 }
 export -f make_one_lstmf
 
@@ -109,7 +109,7 @@ make_one_lstmf_from_gt() {
 export -f make_one_lstmf_from_gt
 
 make_split_lstmf() {
-    if [ -n "$(find data/ftg-ground-truth -path "*.lstmf" -print -quit)" ]; then
+    if [ -n "$(find data/nan_tw-ground-truth -path "*.lstmf" -print -quit)" ]; then
         echo "There are already lstmf files in $GT_DIR. Skipping, assuming lstmf files are already made"
         return
     fi
@@ -123,7 +123,7 @@ make_split_lstmf() {
 
     echo "Creating lstmf files from input training text (synthesized images)..."
     # Generate the lstmf files for each segment
-    if [ ! -d data/ftg-parts ]; then
+    if [ ! -d data/nan_tw-parts ]; then
         find "$TRAINING_TEXT_DIR" -type f -path "*.txt" -print0 |
             parallel -0 --eta make_one_lstmf || true
     fi
@@ -139,18 +139,18 @@ make_split_lstmf() {
     # - a sed-style s/from/to/ expression is a valid Perl expression that works
     #   for this purpose
     # - We are replacing "^.*\/([^\/]+)\/([^\/]*)" with "\1-\2", to turn
-    #   "path/to/ftg.100/foo.lstmf" into "ftg.100-foo.lstmf".
+    #   "path/to/nan_tw.100/foo.lstmf" into "nan_tw.100-foo.lstmf".
     #   (slashes are escaped because a bare slash is part of the s/from/to/ syntax)
     #   In Elisp rx syntax this would be:
     #   (rx bol (* any) "/"
     #       (group (+ (not "/"))) "/"
     #       (group (* (not "/"))))
     mkdir -p "$GT_DIR" "$OUTPUT_DIR"
-    find data/ftg-parts -path "*.lstmf" -print0 |
+    find data/nan_tw-parts -path "*.lstmf" -print0 |
         parallel -0 mv -n '{}' "$GT_DIR"/'{= s/^.*\/([^\/]+)\/([^\/]*)/\1-\2/ =}'
 
     echo "Writing OUTPUT_DIR/all-gt..."
-    cat "$TRAINING_TEXT_DIR"/ftg.training_text.all.txt \
+    cat "$TRAINING_TEXT_DIR"/nan_tw.training_text.all.txt \
         >"$OUTPUT_DIR"/all-gt
     find "$GT_DIR" -path "*.gt.txt" | while read -r f; do
         cat "$f" >>"$OUTPUT_DIR"/all-gt
@@ -168,7 +168,7 @@ merge_our_unicharsets() {
     # We can probably also just rely on the Makefile instead, which takes
     # ALL_GT, runs unicharset_extractor on it, then merges it with the
     # unicharset of the START_MODEL.
-    readarray files < <(find data/ftg-parts -path "*.unicharset")
+    readarray files < <(find data/nan_tw-parts -path "*.unicharset")
     merge_unicharsets "${files[@]}" "$OUTPUT_DIR"/unicharset
 }
 
@@ -178,18 +178,18 @@ train() {
     cat essay-taigi.txt |
         awk '{ print $2 "\t" $1 }' |
         sort -rn |
-        awk '{ print $2 }' >"$OUTPUT_DIR"/ftg.wordlist
-    make training MODEL_NAME=ftg START_MODEL=script/Latin TESSDATA="data/tessdata"
-    mv data/ftg.traineddata data/ftg-best.traineddata
+        awk '{ print $2 }' >"$OUTPUT_DIR"/nan_tw.wordlist
+    make training MODEL_NAME=nan_tw START_MODEL=script/Latin TESSDATA="data/tessdata"
+    mv data/nan_tw.traineddata data/nan_tw-best.traineddata
     # Also generate the "fast" model (I think this is called quantization nowadays)
-    local PROTO_MODEL=data/ftg/ftg.traineddata
-    local LAST_CHECKPOINT=data/ftg/checkpoints/ftg_checkpoint
+    local PROTO_MODEL=data/nan_tw/nan_tw.traineddata
+    local LAST_CHECKPOINT=data/nan_tw/checkpoints/nan_tw_checkpoint
     lstmtraining \
         --stop_training \
         --continue_from "$LAST_CHECKPOINT" \
         --traineddata "$PROTO_MODEL" \
         --convert_to_int \
-        --model_output data/ftg-fast.traineddata
+        --model_output data/nan_tw-fast.traineddata
 }
 
 download_data
